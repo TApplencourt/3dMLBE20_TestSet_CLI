@@ -1,0 +1,212 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+
+CREATE TABLE units_tab(
+    property  CHARACTER(32),
+       units  CHARACTER(32),
+  to_hartree  DOUBLE PRECISION
+);
+
+INSERT INTO "units_tab" VALUES('energy','Hartree',1.0);
+INSERT INTO "units_tab" VALUES('so','kcal/mol',0.00159362);
+INSERT INTO "units_tab" VALUES('atomization','kcal/mol',0.00159362);
+
+CREATE TABLE id_tab(
+             id INTEGER PRIMARY KEY AUTOINCREMENT,
+           name CHARACTER(32) UNIQUE,
+        formula CHARACTER(32),
+         charge INTEGER,
+   multiplicity INTEGER,
+      num_atoms INTEGER,
+       num_elec INTEGER,
+       symmetry CHARACTER(16)
+);
+
+INSERT INTO "id_tab" VALUES(1,'TiCl','[(''Ti'', 1),(''Cl'', 1)]',0,4,2,39,"psi");
+INSERT INTO "id_tab" VALUES(2,'VH','[(''V'', 1),(''H'', 1)]',0,5,2,24,"delta");
+INSERT INTO "id_tab" VALUES(3,'VO','[(''O'', 1),(''V'', 1)]',0,4,2,31,"A2");
+INSERT INTO "id_tab" VALUES(4,'VCl','[(''V'', 1),(''Cl'', 1)]',0,5,2,40,"delta");
+INSERT INTO "id_tab" VALUES(5,'CrH','[(''Cr'', 1),(''H'', 1)]',0,6,2,25,"A1");
+INSERT INTO "id_tab" VALUES(6,'CrO','[(''O'', 1),(''Cr'', 1)]',0,5,2,32,"pi");
+INSERT INTO "id_tab" VALUES(7,'CrCl','[(''Cr'', 1),(''Cl'', 1)]',0,6,2,41,"A1");
+INSERT INTO "id_tab" VALUES(8,'MnS','[(''Mn'', 1),(''S'', 1)]',0,6,2,41,"A1");
+INSERT INTO "id_tab" VALUES(9,'MnCl','[(''Mn'', 1),(''Cl'', 1)]',0,7,2,42,"A1");
+INSERT INTO "id_tab" VALUES(10,'FeH','[(''Fe'', 1),(''H'', 1)]',0,4,2,27,"delta");
+INSERT INTO "id_tab" VALUES(11,'FeCl','[(''Fe'', 1),(''Cl'', 1)]',0,6,2,43,"delta");
+INSERT INTO "id_tab" VALUES(12,'CoH','[(''Co'', 1),(''H'', 1)]',0,3,2,28,"psi");
+INSERT INTO "id_tab" VALUES(13,'CoCl','[(''Co'', 1),(''Cl'', 1)]',0,3,2,44,"psi");
+INSERT INTO "id_tab" VALUES(14,'NiCl','[(''Ni'', 1),(''Cl'', 1)]',0,2,2,45,"pi");
+INSERT INTO "id_tab" VALUES(15,'CuH','[(''Cu'', 1),(''H'', 1)]',0,1,2,30,"A1");
+INSERT INTO "id_tab" VALUES(16,'CuCl','[(''Cu'', 1),(''Cl'', 1)]',0,1,2,46,"sigma");
+INSERT INTO "id_tab" VALUES(17,'ZnH','[(''Zn'', 1),(''H'', 1)]',0,2,2,31,"A1");
+INSERT INTO "id_tab" VALUES(18,'ZnO','[(''O'', 1),(''Zn'', 1)]',0,1,2,38,"sigma");
+INSERT INTO "id_tab" VALUES(19,'ZnS','[(''Zn'', 1),(''S'', 1)]',0,1,2,46,"sigma");
+INSERT INTO "id_tab" VALUES(20,'ZnCl','[(''Zn'', 1),(''Cl'', 1)]',0,2,2,47,"sigma");
+INSERT INTO "id_tab" VALUES(21,'Ti','[(''Ti'', 1)]',0,3,1,22,"F");
+INSERT INTO "id_tab" VALUES(22,'V','[(''V'', 1)]',0,4,1,23,"F");
+INSERT INTO "id_tab" VALUES(23,'Cr','[(''Cr'', 1)]',0,7,1,24,"S");
+INSERT INTO "id_tab" VALUES(24,'Mn','[(''Mn'', 1)]',0,6,1,25,"S");
+INSERT INTO "id_tab" VALUES(25,'Fe','[(''Fe'', 1)]',0,5,1,26,"D");
+INSERT INTO "id_tab" VALUES(26,'Co','[(''Co'', 1)]',0,4,1,27,"F");
+INSERT INTO "id_tab" VALUES(27,'Ni','[(''Ni'', 1)]',0,3,1,28,"F");
+INSERT INTO "id_tab" VALUES(28,'Cu','[(''Cu'', 1)]',0,2,1,29,"S");
+INSERT INTO "id_tab" VALUES(29,'Zn','[(''Zn'', 1)]',0,1,1,30,"S");
+INSERT INTO "id_tab" VALUES(30,'H','[(''H'', 1)]',0,2,1,1,"S");
+INSERT INTO "id_tab" VALUES(31,'O','[(''O'', 1)]',0,3,1,8,"P");
+INSERT INTO "id_tab" VALUES(32,'S','[(''S'', 1)]',0,3,1,16,"P");
+INSERT INTO "id_tab" VALUES(33,'Cl','[(''Cl'', 1)]',0,2,1,17,"P");
+
+CREATE TABLE basis_tab(
+    basis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name CHARACTER(32),
+    comments STRING
+);
+
+INSERT INTO "basis_tab" VALUES(1,'None','Ref');
+
+CREATE TABLE geo_tab (
+            geo_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name CHARACTER(32),
+            comments STRING
+            );
+
+INSERT INTO "geo_tab" VALUES(1,'Experiment','');
+
+CREATE TABLE coord_tab (
+                    coord_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                          id INTEGER,
+                        atom CHARACTER(2),
+                           x DOUBLE PRECISION,
+                           y DOUBLE PRECISION,
+                           z DOUBLE PRECISION,
+                      geo_id INTEGER,
+                    basis_id INTEGER,
+                    FOREIGN KEY(id) REFERENCES id_tab(id),
+                    FOREIGN KEY(geo_id) REFERENCES geo_tab(geo_id),
+                    FOREIGN KEY(basis_id) REFERENCES basis_tab(basis_id)
+                );
+
+INSERT INTO "coord_tab" VALUES(1,1,"Ti",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(2,1,"Cl",0.0,0.0,2.265,1,1);
+INSERT INTO "coord_tab" VALUES(3,2,"V",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(4,2,"H",0.0,0.0,1.730,1,1);
+INSERT INTO "coord_tab" VALUES(5,3,"V",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(6,3,"O",0.0,0.0,1.589,1,1);
+INSERT INTO "coord_tab" VALUES(7,4,"V",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(8,4,"Cl",0.0,0.0,2.215,1,1);
+INSERT INTO "coord_tab" VALUES(9,5,"Cr",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(10,5,"H",0.0,0.0,1.656,1,1);
+INSERT INTO "coord_tab" VALUES(11,6,"Cr",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(12,6,"O",0.0,0.0,1.621,1,1);
+INSERT INTO "coord_tab" VALUES(13,7,"Cr",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(14,7,"Cl",0.0,0.0,2.194,1,1);
+INSERT INTO "coord_tab" VALUES(15,8,"Mn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(16,8,"S",0.0,0.0,2.070,1,1);
+INSERT INTO "coord_tab" VALUES(17,9,"Mn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(18,9,"Cl",0.0,0.0,2.243,1,1);
+INSERT INTO "coord_tab" VALUES(19,10,"Fe",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(20,10,"H",0.0,0.0,1.630,1,1);
+INSERT INTO "coord_tab" VALUES(21,11,"Fe",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(22,11,"Cl",0.0,0.0,2.179,1,1);
+INSERT INTO "coord_tab" VALUES(23,12,"Co",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(24,12,"H",0.0,0.0,1.530,1,1);
+INSERT INTO "coord_tab" VALUES(25,13,"Co",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(26,13,"Cl",0.0,0.0,2.087,1,1);
+INSERT INTO "coord_tab" VALUES(27,14,"Ni",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(28,14,"Cl",0.0,0.0,2.073,1,1);
+INSERT INTO "coord_tab" VALUES(29,15,"Cu",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(30,15,"H",0.0,0.0,1.463,1,1);
+INSERT INTO "coord_tab" VALUES(31,16,"Cu",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(32,16,"Cl",0.0,0.0,2.050,1,1);
+INSERT INTO "coord_tab" VALUES(33,17,"Zn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(34,17,"H",0.0,0.0,1.590,1,1);
+INSERT INTO "coord_tab" VALUES(35,18,"Zn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(36,18,"O",0.0,0.0,1.800,1,1);
+INSERT INTO "coord_tab" VALUES(37,19,"Zn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(38,19,"S",0.0,0.0,2.100,1,1);
+INSERT INTO "coord_tab" VALUES(39,20,"Zn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(40,20,"Cl",0.0,0.0,2.100,1,1);
+INSERT INTO "coord_tab" VALUES(41,21,"Ti",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(42,22,"V",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(43,23,"Cr",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(44,24,"Mn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(45,25,"Fe",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(46,26,"Co",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(47,27,"Ni",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(48,28,"Cu",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(49,29,"Zn",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(50,30,"H",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(51,31,"O",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(52,32,"S",0.0,0.0,0.0,1,1);
+INSERT INTO "coord_tab" VALUES(53,33,"Cl",0.0,0.0,0.0,1,1);
+
+CREATE TABLE so_tab(
+     method_id INTEGER,
+      basis_id INTEGER,
+            id INTEGER,
+           zpe DOUBLE PRECISION
+);
+
+CREATE TABLE simple_energy_tab(
+               run_id INTEGER,
+                   id INTEGER,
+               energy DOUBLE PRECISION,
+               FOREIGN KEY(run_id) REFERENCES run_tab(run_id),
+               FOREIGN KEY(id) REFERENCES id_tab(id),
+               PRIMARY KEY (run_id,id)
+);
+
+CREATE TABLE cipsi_energy_tab(
+               run_id INTEGER,
+                   id INTEGER,
+               energy DOUBLE PRECISION,
+                  pt2 DOUBLE PRECISION,
+               FOREIGN KEY(run_id) REFERENCES run_tab(run_id),
+               FOREIGN KEY(id) REFERENCES id_tab(id),
+               PRIMARY KEY (run_id,id)
+);
+
+CREATE TABLE qmc_energy_tab(
+               run_id INTEGER,
+                   id INTEGER,
+               energy DOUBLE PRECISION,
+                  err DOUBLE PRECISION,
+               FOREIGN KEY(run_id) REFERENCES run_tab(run_id),
+               FOREIGN KEY(id) REFERENCES id_tab(id),
+               PRIMARY KEY (run_id,id)
+);
+
+CREATE VIEW output_tab as
+            SELECT  run_tab.run_id run_id,
+                   method_tab.name method_name,
+            method_tab.method_type method_type,
+                    basis_tab.name basis_name,
+                      geo_tab.name geo_name,
+                  run_tab.comments comments,
+                       id_tab.name name,
+          simple_energy_tab.energy s_energy,
+           cipsi_energy_tab.energy c_energy,
+              cipsi_energy_tab.pt2 c_pt2,
+             qmc_energy_tab.energy q_energy,
+                qmc_energy_tab.err q_err
+            FROM run_tab
+            INNER JOIN method_tab
+                 ON run_tab.method_id = method_tab.method_id
+            INNER JOIN basis_tab
+                 ON run_tab.basis_id = basis_tab.basis_id
+            INNER JOIN geo_tab
+                 ON run_tab.geo_id = geo_tab.geo_id
+            LEFT OUTER JOIN simple_energy_tab
+                 ON run_tab.run_id = simple_energy_tab.run_id
+            LEFT OUTER JOIN cipsi_energy_tab
+                 ON run_tab.run_id = cipsi_energy_tab.run_id
+            LEFT OUTER JOIN qmc_energy_tab
+                 ON run_tab.run_id = qmc_energy_tab.run_id
+            INNER JOIN id_tab
+                 ON (id_tab.id = simple_energy_tab.id)
+                 OR
+                    (id_tab.id = cipsi_energy_tab.id)
+                 OR
+                    (id_tab.id = qmc_energy_tab.id)
+             ORDER BY run_tab.run_id,id_tab.num_elec;
+COMMIT;

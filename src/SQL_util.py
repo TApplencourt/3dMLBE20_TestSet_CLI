@@ -15,8 +15,8 @@ except:
 # \_ | (/_ (_|  |_ (/_   (_ |_| | _> (_) |
 #
 
-dump_path = os.path.abspath(os.path.dirname(__file__) + "/../db/g2.dump")
-db_path = os.path.abspath(os.path.dirname(__file__) + "/../db/g2.db")
+dump_path = os.path.abspath(os.path.dirname(__file__) + "/../db/3dMLBE20.dump")
+db_path = os.path.abspath(os.path.dirname(__file__) + "/../db/3dMLBE20.db")
 
 try:
     conn = connect4git(dump_path, db_path)
@@ -169,7 +169,7 @@ def dict_raw():
                         "charge": int(i[3]),
                         "multiplicity": int(i[4]),
                         "num_atoms": int(i[5]),
-                        "symmetry": str(i[6])}
+                        "symmetry": i[7]}
 
     return d
 
@@ -345,7 +345,7 @@ def get_xyz(geo, ele, only_neutral=True):
     line = " ".join(map(str, [ele,
                               "Geo:", geo,
                               "Mult:", dic_["multiplicity"],
-                              "symmetry:", dic_["symmetry"]]))
+                              "Symmetry:", dic_["symmetry"]]))
     xyz_file_format.append(line)
 
     for atom, xyz in zip(dic_["formula_flat"], dic_["list_xyz"]):

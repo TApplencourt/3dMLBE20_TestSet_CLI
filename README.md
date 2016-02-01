@@ -1,7 +1,7 @@
-G2 TestSet API
+3dMLBE20 TestSet API
 =============================
 
-You can find in this repository all the G2 Test set molucule info.
+You can find in this repository all the 3dMLBE20 Test set molucule info.
 Like:
   * Geometries (Experimental, MP2, ...)
   * Energies (With many method and atomization one)
