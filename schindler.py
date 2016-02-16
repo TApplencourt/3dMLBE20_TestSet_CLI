@@ -8,53 +8,12 @@ Usage:
                                              [--basis=<basis_name>...]
                                              [--geo=<geometry_name>...]
                                              [--comments=<comments>...])]
-                        [(--ele=<element_name>...
-                          | --like_toulouse
-                          | --like_applencourt
-                          | --like_run_id=<run_id>) [--all_children]]
-                        [--without_pt2]
-                        [--order_by=<column>...]
-  schindler.py list_element [--run_id=<id>... | ([--method=<method_name>...]
-                                                 [--basis=<basis_name>...]
-                                                 [--geo=<geometry_name>...]
-                                                 [--comments=<comments>...])]
-                            [--missing (--ele=<element_name>...
-                                        | --like_toulouse
-                                        | --like_applencourt
-                                        | --like_run_id=<run_id>) [--all_children]]
-  schindler.py histogram --run_id=<id>... [--like_run_id=<run_id>]
-
-"""
-
+                        [(  --ele=<element_name>...
+                          | --like_run_id=<run_id>...
+                          | --like-sr7
+                          | --like-mr13 ) [--all_children]]
+                        [--order_by=<column>...]"""
 version = "0.0.1"
-
-# -#-#-#-#-#-#-#-#- #
-# D i s c l a m e r #
-# -#-#-#-#-#-#-#-#- #
-# Proof of concept : Procedural code with minimal function call can be clean
-
-#
-#  _____                           _         _____              __ _
-# |_   _|                         | |    _  /  __ \            / _(_)
-#   | | _ __ ___  _ __   ___  _ __| |_  (_) | /  \/ ___  _ __ | |_ _  __ _
-#   | || '_ ` _ \| '_ \ / _ \| '__| __|     | |    / _ \| '_ \|  _| |/ _` |
-#  _| || | | | | | |_) | (_) | |  | |_   _  | \__/\ (_) | | | | | | | (_| |
-#  \___/_| |_| |_| .__/ \___/|_|   \__| ( )  \____/\___/|_| |_|_| |_|\__, |
-#                | |                    |/                            __/ |
-#                |_|                                                 |___/
-
-import sys
-
-#
-# \  / _  ._ _ o  _  ._
-#  \/ (/_ | _> | (_) | |
-#
-if sys.version_info[:2] != (2, 7):
-    print "You need python 2.7."
-    print "You can change the format (in src/objet.py) for 2.6"
-    print "And pass the 2to3 utility for python 3"
-    print "Send me a pull request after friend!"
-    sys.exit(1)
 
 #
 # |  o |_  ._ _. ._
@@ -66,159 +25,81 @@ except:
     print "File in misc is corupted. Git reset may cure the diseases"
     sys.exit(1)
 
+# ___                      
+#  |  ._ _  ._   _  ._ _|_ 
+# _|_ | | | |_) (_) |   |_ 
+#           |              
 
-# ___  ___      _
-# |  \/  |     (_)
-# | .  . | __ _ _ _ __
-# | |\/| |/ _` | | '_ \
-# | |  | | (_| | | | | |
-# \_|  |_/\__,_|_|_| |_|
-#
-if __name__ == '__main__':
+from src.db_interface import db_run_info
+from src.db_interface import db_list_element
+from src.db_interface import db_list_element_whe_have
+from src.db_interface import db_formula
+from src.db_interface import db_ae, db_e
 
-    arguments = docopt(__doc__, version='G2 Api ' + version)
+from src.combination import calc_deviation
+from src.combination import calc_mad
+from src.combination import calc_atomisation
+from src.combination import merge_two_dicts
 
-    # Docopt Fix
-    if arguments["--missing"] or arguments["--all_children"]:
 
-        if not any(arguments[k] for k in ["--like_toulouse",
-                                          "--like_applencourt",
-                                          "--like_run_id",
-                                          "--ele"]):
-            raise DocoptExit
-            sys.exit(1)
+def get_list_element_whe_want(d_arguments):
+    """
+    Input
+    d_arguments: docot dict of arguments
+    
+    Return
+    l_ele:  list of element who satisfy the condition
+    If we need to get all the element, l_ele = "*"
+    """
 
-    # ___
-    #  |  ._  o _|_
-    # _|_ | | |  |_
-    #
-    # Set somme option, get l_ele and the commande used by sql
-
-    from src.data_util import get_l_ele
-    from src.data_util import ListEle, get_cmd
-
-    # -#-#-#-#-#- #
-    # O p t i o n #
-    # -#-#-#-#-#- #
-
-    print_children = False
-    need_all = True  # False if arguments["list_element"] else True
-
-    # -#-#-#-#- #
-    # l _ e l e #
-    # -#-#-#-#- #
-
-    l_ele = get_l_ele(arguments)
-
-    if arguments["--all_children"]:
-        get_children = True
-    elif arguments["--like_run_id"]:
-        get_children = False
+    if d_arguments["--ele"]:
+        l_ele = d_arguments["--ele"]
+    elif d_arguments["--like-sr7"]:
+        l_ele = ["MnCl","ZnCl","FeCl","CrCl","ZnS","ZnH","CuCl"]
+    elif d_arguments["--like-mr13"]:
+        l_ele = ["ZnO","NiCl","TiCl","CuH","VO","VCl","MnS","CrO","CoH","CoCl","VH","FeH","CrH"]
+    elif d_arguments["--like_run_id"]:
+        l_ele = db_list_element(d_arguments["--like_run_id"])
     else:
-        get_children = True
+        l_ele = ["*"]
 
-    # Usefull object contain all related stuff to l_ele
-    a = ListEle(l_ele, get_children, print_children)
-
-    # -#-#-#-#-#- #
-    # F i l t e r #
-    # -#-#-#-#-#- #
-
-    cond_filter_ele, cmd_where = get_cmd(arguments, a, need_all)
-
-    #  _
-    # |_) ._ _   _  _   _  _ o ._   _
-    # |   | (_) (_ (/_ _> _> | | | (_|
-    #                               _|
-    # We get and calcul all the info
-    # aka : e_cal, run_info, f_info, mad, ...
-
-    from src.data_util import get_ecal_runinfo_finfo, get_mad
-
-    # -#-#-#- #
-    # E c a l #
-    # -#-#-#- #
-
-    energy_opt = "var" if arguments["--without_pt2"] else "var+pt2"
-
-    e_cal, run_info, f_info = get_ecal_runinfo_finfo(cmd_where, energy_opt)
-
-    if arguments["list_run"]:
-        d_mad = get_mad(f_info, e_cal, cond_filter_ele)
-
-    #  _
-    # |_) ._ o ._ _|_ o ._   _
-    # |   |  | | | |_ | | | (_|
-    #                        _|
-    if arguments["list_run"]:
-        from src.print_util import create_print_mad
-        create_print_mad(run_info, d_mad, arguments["--order_by"])
-
-    elif arguments["list_element"]:
-        for run_id in run_info:
-
-            if arguments["--missing"]:
-                line = [e for e in a.l_ele_to_get if e not in e_cal[run_id]]
-            else:
-                line = [e for e in e_cal[run_id]]
-
-            if line:
-                print run_id
-                print " ".join(run_info[run_id])
-                print " ".join(line)
-                print "====="
-    #                                  
-    # |_| o  _ _|_  _   _  ._ _. ._ _  
-    # | | | _>  |_ (_) (_| | (_| | | | 
-    #                   _|             
-    elif arguments["histogram"]:
-
-        from src.data_util import get_enr, complete_e_nr, get_ediff, get_zpe_aeexp
-        from src.data_util import get_ae_cal, get_ae_nr, get_ae_diff
-        from math import *
-
-        ae_cal = get_ae_cal(f_info, e_cal)
+    return l_ele
 
 
-        e_nr = get_enr(cond_filter_ele)
-        zpe_exp, ae_exp = get_zpe_aeexp(cond_filter_ele)
-        complete_e_nr(e_nr, f_info, ae_exp, zpe_exp)
+if __name__ == '__main__':
+    
+    d_arguments = docopt(__doc__, version='G2 Api ' + version)
+    
+    d_formula = db_formula()
+    d_run_info = db_run_info(d_arguments)
+    
 
-        ae_nr = get_ae_nr(f_info, e_nr)
-        ae_diff = get_ae_diff(ae_cal, ae_nr)
+    l_ele = get_list_element_whe_want(d_arguments)
 
-        sq_2pi_inv = .5/sqrt(2.*pi)
-        def g(x,x0,sigma):
-          return exp(-(x-x0)**2/(sigma*sigma))*sq_2pi_inv
+    d_run_id_ele = db_list_element_whe_have(l_ele, d_run_info, d_formula)
 
-        
-        for run_id, ae_diff in ae_diff.items():
-          print "run:%d"%run_id
-          rmin =  1000.
-          rmax = -1000.
-          for ele, e in ae_diff.iteritems():
-            try:
-              x0 = e.e
-            except:
-              x0 = e
-            rmin = min(x0, rmin)
-            rmax = max(x0, rmax)
+    d_ae_db = db_ae(d_run_id_ele)
 
-          print rmin, rmax
-          dx = (rmax-rmin)/100.
-          x = (rmax-rmin)*0.5 - 2.5*(rmax-rmin)
-          for i in xrange(300):
-            s = 0.
-            for ele, e in ae_diff.iteritems():
-              try:
-                x0 = e.e
-                sigma = max(0.001,e.err)
-              except:
-                x0 = e
-                sigma = 0.001
-              s += g(x,x0,sigma)
-            print x*627.51, s
-            x += dx
-          print '\n'
-          print "#Gnuplot cmd: plot for [IDX=0:1] 'visu' i IDX u 1:2 w lines title columnhead(1)"
+    d_e = db_e(d_run_id_ele)
 
+    d_ae_calc = calc_atomisation(d_e,d_formula)
+
+    d_ae = merge_two_dicts(d_ae_calc,d_ae_db)
+    
+    run_id_ref = 1
+
+    d_deviation = calc_deviation(d_ae,run_id_ref)
+
+    d_mad = calc_mad(d_deviation)
+
+
+    from src.print_util import print_mad_recap
+    print_mad_recap(run_id_ref, d_run_info, d_mad, order_by=d_arguments["--order_by"])
+
+
+
+#    if l_ele == ["*"]:
+#        l_ele = list(set.union(*map(set, d_run_id_ele.values())))
+
+#    from src.print_util import print_energie_recap
+#    print_energie_recap(d_run_info,l_ele,d_e,d_ae,d_deviation, order_by=d_arguments["--order_by"])

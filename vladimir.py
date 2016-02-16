@@ -13,9 +13,33 @@ Usage:
                      (--simple | --cipsi [--epp] | --qmc)
                      [--overwrite]
 
-Info:
-  The put_in file need to be formated like this:
-    ```name value \n```
+WARNING ! If CIPSI will use the run_id and the run_id + 1
+
+Example of input file for a simple run (molecule,energy):
+
+F                             -24.1891722605
+CH2_1A1                        -6.7152075579
+NH                            -10.4245101299
+SiH2_3B1                       -4.9754588687
+CH3                            -7.4164102812
+
+Example of input file for a CIPSI run (molecule,energy,pt2):
+
+F                             -24.1891722605      0.0003183747
+CH2_1A1                        -6.7152075579      0.0003207809
+NH                            -10.4245101299      0.0003317405
+SiH2_3B1                       -4.9754588687      0.0003413844
+CH3                            -7.4164102812      0.0003798976
+
+Example of input file for a QMC run (molecule,energy, error):
+
+F                             -24.1891722605      0.0003183747
+CH2_1A1                        -6.7152075579      0.0003207809
+NH                            -10.4245101299      0.0003317405
+SiH2_3B1                       -4.9754588687      0.0003413844
+CH3                            -7.4164102812      0.0003798976
+
+
 """
 
 version = "0.0.2"
@@ -25,9 +49,8 @@ import sys
 try:
     from src.docopt import docopt
     from src.SQL_util import add_or_get_run, get_mol_id
-    from src.SQL_util import add_simple_energy, add_cipsi_energy, add_qmc_energy
+    from src.SQL_util import add_energy
     from src.SQL_util import conn
-    from src.misc_info import old_name_to_new
 except:
     raise
     print "File in misc is corupted. Git reset may cure the diseases"
@@ -46,6 +69,12 @@ if __name__ == '__main__':
                                     "--comment"]]
         run_id = add_or_get_run(*l)
 
+        if arguments["--cipsi"]:
+            l[3] += " (+PT2)"
+            run_id_new = add_or_get_run(*l)
+
+            assert run_id +1 == run_id_new
+
     print run_id,
 
     with open(arguments["--path"], "r") as f:
@@ -61,31 +90,34 @@ if __name__ == '__main__':
             continue
 
         name = list_[0]
-        name = old_name_to_new[name] if name in old_name_to_new else name
-        id_ = get_mol_id(name)
-        print name, id_,
+        print name,
 
         if arguments["--simple"]:
             e = list_[1]
 
             print e
-            add_simple_energy(run_id, id_, e,
-                              overwrite=arguments["--overwrite"])
+            add_energy(run_id, name, e, None, overwrite=arguments["--overwrite"])
 
         elif arguments["--cipsi"]:
-            e, pt2 = list_[1:]
-            if arguments["--epp"]:
-                pt2 = float(pt2) - float(e)
+            if not arguments["--epp"]:
+                e, pt2 = list_[1:]
+                ept2 = float(e) + float(pt2)
+            else:
+                e, ept2 = list_[1:]
 
-            print e, pt2
-            add_cipsi_energy(run_id, id_, e, pt2,
+            print e, ept2
+            add_energy(run_id, name, e, None,
                              overwrite=arguments["--overwrite"])
+
+            add_energy(str(int(run_id)+1), name, ept2, None,
+                             overwrite=arguments["--overwrite"])
+
 
         elif arguments["--qmc"]:
             e, err = list_[1:]
 
             print e, err
-            add_qmc_energy(run_id, id_, e, err,
+            add_energy(run_id, name, e, err,
                            overwrite=arguments["--overwrite"])
 
     conn.commit()
