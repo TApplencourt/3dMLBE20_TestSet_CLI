@@ -54,7 +54,6 @@ if __name__ == '__main__':
     run_id_ref=1
     q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
 
-
     mode = 0
     if d_arguments["--e"]:
         mode += 1
