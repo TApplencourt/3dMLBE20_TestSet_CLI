@@ -71,12 +71,16 @@ if __name__ == '__main__':
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
     
     d_formula = db_formula()
-    d_run_info = db_run_info(d_arguments)
+    d_run_info, print_run_info = db_run_info(d_arguments)
     
 
     l_ele = get_list_element_whe_want(d_arguments)
 
     d_run_id_ele = db_list_element_whe_have(l_ele, d_run_info, d_formula)
+
+#    if l_ele == ["*"]:
+#        l_ele = list(set.union(*map(set, d_run_id_ele.values())))
+
 
     d_ae_db = db_ae(d_run_id_ele)
 
@@ -98,8 +102,6 @@ if __name__ == '__main__':
 
 
 
-#    if l_ele == ["*"]:
-#        l_ele = list(set.union(*map(set, d_run_id_ele.values())))
 
 #    from src.print_util import print_energie_recap
 #    print_energie_recap(d_run_info,l_ele,d_e,d_ae,d_deviation, order_by=d_arguments["--order_by"])

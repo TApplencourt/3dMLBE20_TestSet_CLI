@@ -157,7 +157,6 @@ def db_list_element_whe_have(l_ele,l_run_id, d_formula):
                                       ele_name
                                FROM run_tab_ele
                                WHERE {0}
-
                             """.format(sql_cmd_where))
 
     d_run_id_ele = defaultdict(list)
