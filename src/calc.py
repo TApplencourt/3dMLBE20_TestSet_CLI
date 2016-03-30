@@ -195,9 +195,6 @@ class BigData(object):
 
         d = self.db_get("ae_tab")
 
-        for key, value in d.items():
-                for key2, value2 in value:
-                    d[key2][value2] *= 627.503
         return d
 
     @property
@@ -215,8 +212,9 @@ class BigData(object):
                     continue
 
                 try:
-                    d[run_id][ele] = sum(
-                        d_mol[i] for i in self.d_formula[ele]) - d_mol[ele]
+                    d[run_id][ele] = sum(d_mol[i] for i in self.d_formula[ele]) - d_mol[ele]
+                    d[run_id][ele] *= 627.503
+
                 except KeyError:
                     pass
 
