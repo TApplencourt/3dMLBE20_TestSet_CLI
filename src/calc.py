@@ -195,6 +195,9 @@ class BigData(object):
 
         d = self.db_get("ae_tab")
 
+        for key, value in d.items():
+                for key2, value2 in value:
+                    d[key2][value2] *= 627.503
         return d
 
     @property
