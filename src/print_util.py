@@ -70,7 +70,7 @@ def order(list_order, header_name, table_body):
 # |_) ._ o ._ _|_   ._ _   _.  _|
 # |   |  | | | |_   | | | (_| (_|
 #
-def print_mad_recap(run_id_ref, run_info, d_mad, order_by):
+def print_mad_recap(q, order_by="run_id"):
     """
     Create the table then print the mad
     """
@@ -84,21 +84,22 @@ def print_mad_recap(run_id_ref, run_info, d_mad, order_by):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-    header_name = "Run_id Method Basis Geo Comments mad".split()
-    header_unit = [DEFAULT_CHARACTER] * 5 + ["kcal/mol"]
+
+    l_fields = "run_id method basis geo comments".split()
+
+    header_name = l_fields + ["mad"]
+    header_unit = [DEFAULT_CHARACTER] * len(l_fields) + ["kcal/mol"]
 
     # -#-#-#- #
     # B o d y #
     # -#-#-#- #
 
-    #Add the reference
-    line=["{0}*".format(run_id_ref)] + run_info[run_id_ref] + [0.]
-    table_body.append(line)
-
     #Now add the real mad
-    for run_id, mad in d_mad.iteritems():
-        l = run_info[run_id]
-        line = [run_id] + l + [mad]
+    for run_id, mad in q.d_mad.iteritems():
+
+        l_info = q.d_run_info[run_id]
+
+        line = [getattr(l_info, field) for field in l_fields] + [mad]
         table_body.append(line)
 
     # -#-#-#-#-#- #
@@ -119,8 +120,7 @@ def print_mad_recap(run_id_ref, run_info, d_mad, order_by):
     print table_big.table(row_separator=2)
 
 
-def print_energie_recap(d_run_info,run_id_ref,print_run_id_ref,
-                        l_ele,d_e,d_ae,d_deviation, order_by,mode):
+def print_energie_recap(q, order_by="run_id",mode=3):
 
     # -#-#-#- #
     # I n i t #
@@ -134,9 +134,10 @@ def print_energie_recap(d_run_info,run_id_ref,print_run_id_ref,
     # H e a d e r #
     # -#-#-#-#-#- #
 
-    header_name = "Run_id Method Basis Geo Comments ele ".split()
-    header_unit = [DEFAULT_CHARACTER] * 6 
+    l_fields = "run_id method basis geo comments".split()
 
+    header_name = l_fields + ["ele"]
+    header_unit = [DEFAULT_CHARACTER] * (len(l_fields)+1)
 
     # -#- #
     # A E #
@@ -146,66 +147,48 @@ def print_energie_recap(d_run_info,run_id_ref,print_run_id_ref,
     if mode == 2 or mode == 3:
         header_name += "ae ae_ref ae_diff".split()
 
-
-    # -#-#-#-#- #
-    # M E R G E #
-    # -#-#-#-#- #
-
-    from collections import namedtuple
-    E_ae = namedtuple("e_ae",['e','ae'])
-    E_ae.__new__.__defaults__ = (None,) * len(E_ae._fields)
-
-    dd = defaultdict(dict)
-
-    for run_id ,d in d_e.iteritems():
-        for ele,e in d.iteritems():
-            dd[run_id][ele] = E_ae(e=e,ae=None)
-
-
-    for run_id ,d in d_ae.iteritems():
-        for ele,ae in d.iteritems():
-
-            try:
-                e = dd[run_id][ele].e
-                dd[run_id][ele] = E_ae(e,ae)
-            except KeyError:
-                dd[run_id][ele] =E_ae(e=None,ae=ae)
-
-    # -#-#-#- #
-    # B o d y #
-    # -#-#-#- #
     table_body = []
+    for run_id in q.l_run_id:
 
-    for run_id, d in dd.items():
-        for ele, e_ae in d.items():
+        l_info = q.d_run_info[run_id]
+        line = [getattr(l_info, field) for field in l_fields]
 
+        d_e = q.d_e[run_id]
+        d_ae = q.d_ae[run_id]
 
-            if ele in l_ele:
+        for ele in set(d_e.keys()) | set(d_ae.keys()):
 
-                l = []
+            sentinel = False
 
-                if e_ae.e and (mode==1 or mode==3):
-                    l.append(e_ae.e)
+            line_value = []
+            if mode == 1 or mode==3:
+                if ele in d_e:
+                    line_value.append(d_e[ele])
+                    sentinel = True
                 else:
-                    if mode == 3:
-                        l.append("")
+                    line_value.append("")
 
-                if e_ae.ae and (mode==2 or mode==3):
-                    l.append(e_ae.ae)
-                    l.append(d_ae[run_id_ref][ele])
-                    try:
-                        l.append(d_deviation[run_id][ele])
-                    except:
-                        pass
+            if mode == 2 or mode == 3:
+                if ele in d_ae:
+                    line_value.append(d_ae[ele])
+                    sentinel = True
                 else:
-                    if mode == 3:
-                        l.extend([""]*3)
+                    line_value.append("")
 
-                if l:
-                    if run_id != run_id_ref or print_run_id_ref:
-                            l =  [run_id] + d_run_info[run_id]+[ele] + l
-                            table_body.append(l)
 
+                if ele in q.d_ae[q.run_id_ref]:
+                    line_value.append(q.d_ae[q.run_id_ref][ele])
+                else:
+                    line_value.append("")
+
+
+                if ele in q.d_ae_deviation[run_id]:
+                    line_value.append(q.d_ae_deviation[run_id][ele])
+                else:
+                    line_value.append(""*3)
+
+            if sentinel:
+                table_body.append(line+[ele]+line_value)
 
     # -#-#-#-#-#- #
     # F o r m a t #

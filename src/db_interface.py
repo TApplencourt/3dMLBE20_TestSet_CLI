@@ -298,5 +298,3 @@ def db_e(d_run_id_ele):
 
     return db_get(d_run_id_ele,"e_tab")
 
-
-
