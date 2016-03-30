@@ -86,6 +86,7 @@ def calc_atomisation(dd_value,d_formula,strict=False):
 
             try:
                 d[run_id][ele] = sum(d_ref[i] for i in d_formula[ele]) - d_ref[ele]
+                d[run_id][ele] *= 627.509
             except KeyError:
 
                 if strict:
