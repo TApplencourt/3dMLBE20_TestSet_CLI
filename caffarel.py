@@ -4,7 +4,7 @@
 
 Usage:
   caffarel.py (-h | --help)
-  caffarel.py get [--e] [--ae]
+  caffarel.py get [e] [ae]
                   [--run_id=<id>... | ([--method=<method_name>...]
                                        [--basis=<basis_name>...]
                                        [--geo=<geometry_name>...]
@@ -36,9 +36,9 @@ if __name__ == '__main__':
     q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
 
     mode = 0
-    if d_arguments["--e"]:
+    if d_arguments["e"]:
         mode += 1
-    if d_arguments["--ae"]:
+    if d_arguments["ae"]:
         mode += 2
     if not mode:
         mode = 3
