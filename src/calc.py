@@ -16,7 +16,8 @@ class BigData(object):
 
     def __init__(self, d_arguments, run_id_ref=None):
         self.d_arguments = d_arguments
-        self.run_id_ref = int(run_id_ref)
+        if run_id_ref:
+            self.run_id_ref = int(run_id_ref)
 
     @property
     @lru_cache(maxsize=1)
@@ -71,33 +72,27 @@ class BigData(object):
     def l_run_id(self):
         return self.d_run_info.keys()
 
-    @property
     @lru_cache(maxsize=1)
-    def d_formula(self):
-        """
-        Input: l_ele
-    
-        Return
-        d |
-        -> key: name
-        -> value: the flaten formula (H,H,O) for H2O for exemple.
-    
-        All the element need to have a formula!
-        """
-        d = dict()
+    def get_formula(self,ele):
+        import re
 
-        c.execute("""SELECT name, formula
-                                   FROM ele_tab""")
+        def s2i(str_):
+            return int(str_) if str_ else 1
 
-        d = {name: [a * nb for a, nb in eval(f)] for (name, f) in c.fetchall()}
+        l_formula_raw = re.findall(r'([A-Z][a-z]*)(\d*)', ele)
+        l_formula_tuple = [(atome,s2i(char_number)) for atome,char_number in l_formula_raw]
+        l_formula_flaten = [a for a,nb in l_formula_tuple for i in range(nb)]
 
-        return d
+        return l_formula_flaten
 
     @property
     @lru_cache(maxsize=1)
     def l_element_whe_want(self):
 
         from src.db_interface import db_list_element
+        
+        def check(str_):
+            return str_ in self.d_arguments and self.d_arguments[str_]
         """
         Input
         d_arguments: docot dict of arguments
@@ -107,21 +102,20 @@ class BigData(object):
         If we need to get all the element, l_ele = "*"
         """
 
-        if self.d_arguments["--ele"]:
+        if check("--ele"):
             l_ele = self.d_arguments["--ele"]
-        elif self.d_arguments["--like-sr7"]:
+        elif check("--like-sr7"):
             l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
-        elif self.d_arguments["--like-mr13"]:
+        elif check("--like-mr13"):
             l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
                      "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.d_arguments["--like_run_id"]:
+        elif check("--like_run_id"):
             l_ele = db_list_element(self.d_arguments["--like_run_id"])
         else:
             l_ele = ["*"]
 
         if self.d_arguments["--all_children"] and not l_ele == ["*"]:
-            l_ele = list(set(
-                l_ele + [a for ele in l_ele for a in self.d_formula[ele]]))
+            l_ele = list(set(l_ele + [a for ele in l_ele for a in self.get_formula(ele)]))
 
         return l_ele
 
@@ -194,7 +188,6 @@ class BigData(object):
     def d_ae_db(self):
 
         d = self.db_get("ae_tab")
-
         return d
 
     @property
@@ -208,11 +201,11 @@ class BigData(object):
         for run_id, d_mol in self.d_e.items():
             for ele, energy in d_mol.items():
 
-                if len(self.d_formula[ele]) == 1:
+                if len(self.get_formula(ele)) == 1:
                     continue
 
                 try:
-                    d[run_id][ele] = sum(d_mol[i] for i in self.d_formula[ele]) - d_mol[ele]
+                    d[run_id][ele] = sum(d_mol[i] for i in self.get_formula(ele)) - d_mol[ele]
                     d[run_id][ele] *= 627.503
 
                 except KeyError:
@@ -230,6 +223,15 @@ class BigData(object):
 
     @property
     @lru_cache(maxsize=1)
+    def d_ae_ref(self):
+
+        d_arguments={"--run_id": [self.run_id_ref],"--all_children":True}
+        q = BigData(d_arguments=d_arguments)
+
+        return q.d_ae[self.run_id_ref]
+
+    @property
+    @lru_cache(maxsize=1)
     def d_e(self):
 
         return self.d_e_db
@@ -242,14 +244,9 @@ class BigData(object):
 
         d = defaultdict(dict)
 
-        assert self.run_id_ref, "You need to set a run reference for compute the deviation"
-        assert self.run_id_ref in self.l_run_id, "{0} need to be in {1}".format(
-            self.run_id_ref, self.l_run_id)
-
         for run_id, d_ae_run_id in self.d_ae.items():
 
-            for ele, energy, energy_ref in zipdic(d_ae_run_id,
-                                                  self.d_ae[self.run_id_ref]):
+            for ele, energy, energy_ref in zipdic(d_ae_run_id,self.d_ae_ref):
                 d[run_id][ele] = energy - energy_ref
 
         return d
