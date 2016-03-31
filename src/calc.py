@@ -85,43 +85,63 @@ class BigData(object):
 
         return l_formula_flaten
 
+    def get_l_children(self,l_ele):
+        return list(set([a for ele in l_ele for a in self.get_formula(ele)]))
+
+    @property
+    @lru_cache(maxsize=1)
+    def db_list_element(self,l_run_id):
+
+        sql_cmd_where = "".join(cond_sql_or("run_id", l_run_id))
+    
+        cursor = c_row.execute("""SELECT ele_name
+                                   FROM  run_tab_ele
+                                   WHERE {0}
+                                   """.format(sql_cmd_where))
+    
+        l_ele = [i[0] for i in cursor]
+        
+        assert(l_ele),  "No element in run_id: {0}".format(self.d_arguments["--like_run_id"])
+        
+        return l_ele
+
+    def check(self,str_):
+        return str_ in self.d_arguments and self.d_arguments[str_]
+
     @property
     @lru_cache(maxsize=1)
     def l_element_whe_want(self):
 
-        from src.db_interface import db_list_element
-        
-        def check(str_):
-            return str_ in self.d_arguments and self.d_arguments[str_]
-        """
-        Input
-        d_arguments: docot dict of arguments
-        
-        Return
-        l_ele:  list of element who satisfy the condition
-        If we need to get all the element, l_ele = "*"
-        """
-
-        if check("--ele"):
-            l_ele = self.d_arguments["--ele"]
-        elif check("--like-sr7"):
-            l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
-        elif check("--like-mr13"):
-            l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
-                     "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif check("--like_run_id"):
-            l_ele = db_list_element(self.d_arguments["--like_run_id"])
-        else:
-            l_ele = ["*"]
-
-        if self.d_arguments["--all_children"] and not l_ele == ["*"]:
+        l_ele = self.l_element_to_print
+        if self.check("--ae") or self.check("list_run") and not l_ele == ["*"] and not self.check("--like_run_id"):
             l_ele = list(set(l_ele + [a for ele in l_ele for a in self.get_formula(ele)]))
 
         return l_ele
 
     @property
     @lru_cache(maxsize=1)
-    def d_l_element(self):
+    def l_element_to_print(self):
+
+        if self.check("--ele"):
+            l_ele = self.d_arguments["--ele"]
+        elif self.check("--like-sr7"):
+            l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
+        elif self.check("--like-mr13"):
+            l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
+                     "CoH", "CoCl", "VH", "FeH", "CrH"]
+        elif self.check("--like_run_id"):
+            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
+        else:
+            l_ele = ["*"]
+
+        if self.check("--with_children") and not l_ele == ["*"]:
+            l_ele += self.get_l_children(l_ele)
+
+        return l_ele
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element(self):
 
         from collections import defaultdict
 
@@ -129,25 +149,14 @@ class BigData(object):
         l += cond_sql_or("run_id", self.l_run_id)
         sql_cmd_where = " AND ".join(l)
 
-        cursor = c_row.execute("""SELECT run_id,
+        cursor = c_row.execute("""SELECT DISTINCT
                                           ele_name
                                    FROM run_tab_ele
                                    WHERE {0}
                                 """.format(sql_cmd_where))
 
-        d_run_id_ele = defaultdict(list)
-        for run_id, ele in cursor:
-            d_run_id_ele[run_id].append(ele)
 
-        assert d_run_id_ele, "No run have any element you request: {0}".format(
-            self.l_element_whe_want)
-
-        return d_run_id_ele
-
-    @property
-    @lru_cache(maxsize=1)
-    def l_element(self):
-        return list(set.union(*map(set, self.d_l_element.values())))
+        return [i[0] for i in cursor.fetchall()]
 
     def db_get(self, table_name):
 
@@ -225,7 +234,7 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def d_ae_ref(self):
 
-        d_arguments={"--run_id": [self.run_id_ref],"--all_children":True}
+        d_arguments={"--run_id": [self.run_id_ref],"--with_children":True}
         q = BigData(d_arguments=d_arguments)
 
         return q.d_ae[self.run_id_ref]
@@ -265,7 +274,7 @@ class BigData(object):
 if __name__ == '__main__':
     d_arguments = {"--run_id": [1, 8],
                    "--ele": ["MnCl"],
-                   "--all_children": True}
+                   "--with_children": True}
 
     q = BigData(d_arguments=d_arguments, run_id_ref="1")
     print q.d_ae

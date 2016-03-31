@@ -108,7 +108,7 @@ INSERT INTO "run_tab" VALUES(15,1,8,3,'1M dets');
 INSERT INTO "run_tab" VALUES(16,1,10,3,'1M dets');
 INSERT INTO "run_tab" VALUES(17,1,10,3,'1M dets (+PT2)');
 INSERT INTO "run_tab" VALUES(18,1,11,3,'1M dets nopert');
-INSERT INTO "run_tab" VALUES(19,1,11,3,'1M dets 1 iteration nopert');
+INSERT INTO "run_tab" VALUES(19,1,11,3,'1M dets 1 iter nopert');
 CREATE TABLE coord_tab(
                     coord_id INTEGER PRIMARY KEY AUTOINCREMENT,
                      geo_id INTEGER,

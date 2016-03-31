@@ -16,6 +16,7 @@ d_format = defaultdict(lambda: '{0}')
 for name, value in config.items("Format_dict"):
     d_format[name] = value
 
+L_FIELD= config.items("Display")[0][1].split()
 
 DEFAULT_CHARACTER = ""
 
@@ -31,7 +32,7 @@ def format_table(l_header, table_body):
     For all value in all ligne, format the table
     """
 
-    table_formated = [[d_format[h].format(v) for h, v in zip(l_header,l)] 
+    table_formated = [[d_format[h].format(v) if v else DEFAULT_CHARACTER for h, v in zip(l_header,l)] 
                       for l in table_body]
 
     return table_formated
@@ -84,11 +85,8 @@ def print_mad_recap(q, order_by="run_id"):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-
-    l_fields = "run_id method basis geo comments".split()
-
-    header_name = l_fields + ["mad"]
-    header_unit = [DEFAULT_CHARACTER] * len(l_fields) + ["kcal/mol"]
+    header_name = L_FIELD + ["mad"]
+    header_unit = [DEFAULT_CHARACTER] * len(L_FIELD) + ["kcal/mol"]
 
     # -#-#-#- #
     # B o d y #
@@ -99,7 +97,7 @@ def print_mad_recap(q, order_by="run_id"):
 
         l_info = q.d_run_info[run_id]
 
-        line = [getattr(l_info, field) for field in l_fields] + [mad]
+        line = [getattr(l_info, field) for field in L_FIELD] + [mad]
         table_body.append(line)
 
     # -#-#-#-#-#- #
@@ -134,10 +132,8 @@ def print_energie_recap(q, order_by="run_id",mode=3):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-    l_fields = "run_id method basis geo comments".split()
-
-    header_name = l_fields + ["ele"]
-    header_unit = [DEFAULT_CHARACTER] * (len(l_fields)+1)
+    header_name = L_FIELD + ["ele"]
+    header_unit = [DEFAULT_CHARACTER] * (len(L_FIELD)+1)
 
     # -#- #
     # A E #
@@ -151,7 +147,7 @@ def print_energie_recap(q, order_by="run_id",mode=3):
     for run_id in q.l_run_id:
 
         l_info = q.d_run_info[run_id]
-        line = [getattr(l_info, field) for field in l_fields]
+        line = [getattr(l_info, field) for field in L_FIELD]
 
         if mode == 1 or mode==3:
             d_e = q.d_e[run_id]
@@ -168,35 +164,36 @@ def print_energie_recap(q, order_by="run_id",mode=3):
         elif mode == 3:
             l = set(d_e.keys()) | set(d_ae.keys())
 
-        for ele in l:
+        for ele in set(l) & set(q.l_element_to_print):
 
             sentinel = False
 
             line_value = []
             if mode == 1 or mode==3:
+
                 if ele in d_e:
                     line_value.append(d_e[ele])
                     sentinel = True
                 else:
-                    line_value.append("")
+                    line_value.append(None)
 
             if mode == 2 or mode == 3:
+
                 if ele in d_ae:
                     line_value.append(d_ae[ele])
                     sentinel = True
                 else:
-                    line_value.append("")
-
+                    line_value.append(None)
 
                 if ele in d_ae_ref:
                     line_value.append(d_ae_ref[ele])
                 else:
-                    line_value.append("")
+                    line_value.append(None)
 
                 if ele in d_ae_deviation:
                     line_value.append(d_ae_deviation[ele])
                 else:
-                    line_value.append(""*3)
+                    line_value.append(None)
 
             if sentinel:
                 table_body.append(line+[ele]+line_value)

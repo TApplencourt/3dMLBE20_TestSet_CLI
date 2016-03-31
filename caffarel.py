@@ -12,7 +12,7 @@ Usage:
                   [(  --ele=<element_name>...
                     | --like_run_id=<run_id>...
                     | --like-sr7
-                    | --like-mr13 ) [--all_children]]
+                    | --like-mr13 ) [--with_children]]
                   [--order_by=<column>...]"""
 
 version = "0.0.1"
@@ -22,35 +22,16 @@ version = "0.0.1"
 # |_ | |_) | (_| | \/
 #                  /
 try:
-    from src.docopt import docopt, DocoptExit
+    from src.docopt import docopt
 except:
     print "File in misc is corupted. Git reset may cure the diseases"
     sys.exit(1)
 
-# ___                      
-#  |  ._ _  ._   _  ._ _|_ 
-# _|_ | | | |_) (_) |   |_ 
-#           |              
-
-from src.db_interface import db_run_info
-from src.db_interface import db_list_element
-from src.db_interface import db_list_element_whe_have
-from src.db_interface import db_formula
-from src.db_interface import db_ae, db_e
-
-from src.combination import calc_deviation
-from src.combination import calc_mad
-from src.combination import calc_atomisation
-from src.combination import merge_two_dicts
-
-
 if __name__ == '__main__':
-    
-    d_arguments = docopt(__doc__, version='G2 Api ' + version)
 
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
+
     from src.calc import BigData
-
     run_id_ref=1
     q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
 

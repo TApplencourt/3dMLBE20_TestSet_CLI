@@ -11,7 +11,7 @@ Usage:
                         [(  --ele=<element_name>...
                           | --like_run_id=<run_id>...
                           | --like-sr7
-                          | --like-mr13 ) [--all_children]]
+                          | --like-mr13 ) [--with_children]]
                         [--order_by=<column>...]"""
 version = "0.0.1"
 
@@ -20,7 +20,7 @@ version = "0.0.1"
 # |_ | |_) | (_| | \/
 #                  /
 try:
-    from src.docopt import docopt, DocoptExit
+    from src.docopt import docopt
 except:
     print "File in misc is corupted. Git reset may cure the diseases"
     sys.exit(1)
