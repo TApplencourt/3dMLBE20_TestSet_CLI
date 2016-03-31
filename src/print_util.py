@@ -164,7 +164,12 @@ def print_energie_recap(q, order_by="run_id",mode=3):
         elif mode == 3:
             l = set(d_e.keys()) | set(d_ae.keys())
 
-        for ele in set(l) & set(q.l_element_to_print):
+        if q.l_element_to_print != ['*']: 
+            s_ele = set(l) & set(q.l_element_to_print)
+        else:
+            s_ele = set(l)
+
+        for ele in s_ele:
 
             sentinel = False
 

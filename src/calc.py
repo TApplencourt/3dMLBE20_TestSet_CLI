@@ -26,7 +26,7 @@ class BigData(object):
     def d_run_info(self):
         "Return a dict in adecation of d_arguments"
 
-        d = {"run_id": "--run_id",
+        d = {"run_id": "--run",
              "geo": "--geo",
              "basis": "--basis",
              "method": "--method",
@@ -63,9 +63,7 @@ class BigData(object):
         for emp in map(RunInfo._make, cursor.fetchall()):
             d_run_info[emp.run_id] = emp
 
-        if not d_run_info:
-            print "No run_id with:", sql_cmd_where
-            sys.exit(1)
+        assert d_run_info, "No run_id with: {0}".format(sql_cmd_where)
 
         return d_run_info
 

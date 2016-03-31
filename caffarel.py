@@ -5,7 +5,7 @@
 Usage:
   caffarel.py (-h | --help)
   caffarel.py get [e] [ae]
-                  [--run_id=<id>... | ([--method=<method_name>...]
+                  [--run=<id>... | ([--method=<method_name>...]
                                        [--basis=<basis_name>...]
                                        [--geo=<geometry_name>...]
                                        [--comments=<comments>...])]
@@ -13,7 +13,13 @@ Usage:
                     | --like_run_id=<run_id>...
                     | --like-sr7
                     | --like-mr13 ) [--with_children]]
-                  [--order_by=<column>...]"""
+                  [--order_by=<column>...]
+                  [--ref=<id>]
+
+Options:
+  --ref=<id>    Speed in knots [default: 1].
+
+"""
 
 version = "0.0.1"
 
@@ -30,9 +36,9 @@ except:
 if __name__ == '__main__':
 
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
-
+    
     from src.calc import BigData
-    run_id_ref=1
+    run_id_ref=int(d_arguments["--ref"])
     q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
 
     mode = 0
