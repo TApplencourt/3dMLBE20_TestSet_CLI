@@ -12,9 +12,9 @@ from src.Requirement_util import config
 import sys
 
 # Format dict
-d_format = defaultdict(lambda: '{0}')
+D_FORMAT = defaultdict(lambda: '{0}')
 for name, value in config.items("Format_dict"):
-    d_format[name] = value
+    D_FORMAT[name] = value
 
 L_FIELD= config.items("Display")[0][1].split()
 
@@ -32,7 +32,7 @@ def format_table(l_header, table_body):
     For all value in all ligne, format the table
     """
 
-    table_formated = [[d_format[h].format(v) if v else DEFAULT_CHARACTER for h, v in zip(l_header,l)] 
+    table_formated = [[D_FORMAT[h].format(v) if v else DEFAULT_CHARACTER for h, v in zip(l_header,l)] 
                       for l in table_body]
 
     return table_formated
