@@ -1,11 +1,13 @@
 #!/usr/bin/python
+from collections import namedtuple
+from collections import defaultdict
+
+from src.__init__ import lru_cache
+from src.__init__ import zipdic
+from src.__init__ import cond_sql_or
+from src.__init__ import get_formula
 
 from src.SQL_util import c, c_row
-from src.SQL_util import cond_sql_or
-
-from collections import namedtuple
-from src.__init__ import lru_cache, zipdic
-
 
 class BigData(object):
 
@@ -16,14 +18,15 @@ class BigData(object):
 
     def __init__(self, d_arguments, run_id_ref=None):
         self.d_arguments = d_arguments
-        self.run_id_ref = int(run_id_ref)
+        if run_id_ref:
+            self.run_id_ref = int(run_id_ref)
 
     @property
     @lru_cache(maxsize=1)
     def d_run_info(self):
         "Return a dict in adecation of d_arguments"
 
-        d = {"run_id": "--run_id",
+        d = {"run_id": "--run",
              "geo": "--geo",
              "basis": "--basis",
              "method": "--method",
@@ -60,9 +63,7 @@ class BigData(object):
         for emp in map(RunInfo._make, cursor.fetchall()):
             d_run_info[emp.run_id] = emp
 
-        if not d_run_info:
-            print "No run_id with:", sql_cmd_where
-            sys.exit(1)
+        assert d_run_info, "No run_id with: {0}".format(sql_cmd_where)
 
         return d_run_info
 
@@ -71,89 +72,80 @@ class BigData(object):
     def l_run_id(self):
         return self.d_run_info.keys()
 
+    def get_l_children(self, l_ele):
+        return list(set([a for ele in l_ele for a in get_formula(ele)]))
+
     @property
     @lru_cache(maxsize=1)
-    def d_formula(self):
-        """
-        Input: l_ele
-    
-        Return
-        d |
-        -> key: name
-        -> value: the flaten formula (H,H,O) for H2O for exemple.
-    
-        All the element need to have a formula!
-        """
-        d = dict()
+    def db_list_element(self, l_run_id):
 
-        c.execute("""SELECT name, formula
-                                   FROM ele_tab""")
+        sql_cmd_where = "".join(cond_sql_or("run_id", l_run_id))
 
-        d = {name: [a * nb for a, nb in eval(f)] for (name, f) in c.fetchall()}
+        cursor = c_row.execute("""SELECT ele_name
+                                   FROM  run_tab_ele
+                                   WHERE {0}
+                               """.format(sql_cmd_where))
 
-        return d
+        l_ele = [i[0] for i in cursor]
+
+        str_ = "No element in run_id: {0}"
+        assert (l_ele), str_.format(self.d_arguments["--like_run_id"])
+
+        return l_ele
+
+    def check(self, str_):
+        return str_ in self.d_arguments and self.d_arguments[str_]
 
     @property
     @lru_cache(maxsize=1)
     def l_element_whe_want(self):
 
-        from src.db_interface import db_list_element
-        """
-        Input
-        d_arguments: docot dict of arguments
-        
-        Return
-        l_ele:  list of element who satisfy the condition
-        If we need to get all the element, l_ele = "*"
-        """
+        l_ele = self.l_element_to_print
 
-        if self.d_arguments["--ele"]:
-            l_ele = self.d_arguments["--ele"]
-        elif self.d_arguments["--like-sr7"]:
-            l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
-        elif self.d_arguments["--like-mr13"]:
-            l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
-                     "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.d_arguments["--like_run_id"]:
-            l_ele = db_list_element(self.d_arguments["--like_run_id"])
-        else:
-            l_ele = ["*"]
+        if any([self.check("ae"), self.check("list_run"), not l_ele == ["*"],
+                not self.check("--like_run_id")]):
 
-        if self.d_arguments["--all_children"] and not l_ele == ["*"]:
-            l_ele = list(set(
-                l_ele + [a for ele in l_ele for a in self.d_formula[ele]]))
+            l_child = self.get_l_children(l_ele)
+            l_ele = list(set(l_ele) | set(l_child))
 
         return l_ele
 
     @property
     @lru_cache(maxsize=1)
-    def d_l_element(self):
+    def l_element_to_print(self):
 
-        from collections import defaultdict
+        if self.check("--ele"):
+            l_ele = self.d_arguments["--ele"]
+        elif self.check("--like-sr7"):
+            l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
+        elif self.check("--like-mr13"):
+            l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
+                     "CoH", "CoCl", "VH", "FeH", "CrH"]
+        elif self.check("--like_run_id"):
+            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
+        else:
+            l_ele = ["*"]
+
+        if self.check("--with_children") and not l_ele == ["*"]:
+            l_ele += self.get_l_children(l_ele)
+
+        return l_ele
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element(self):
 
         l = cond_sql_or("ele_name", self.l_element_whe_want)
         l += cond_sql_or("run_id", self.l_run_id)
         sql_cmd_where = " AND ".join(l)
 
-        cursor = c_row.execute("""SELECT run_id,
+        cursor = c_row.execute("""SELECT DISTINCT
                                           ele_name
                                    FROM run_tab_ele
                                    WHERE {0}
-                                """.format(sql_cmd_where))
+                               """.format(sql_cmd_where))
 
-        d_run_id_ele = defaultdict(list)
-        for run_id, ele in cursor:
-            d_run_id_ele[run_id].append(ele)
-
-        assert d_run_id_ele, "No run have any element you request: {0}".format(
-            self.l_element_whe_want)
-
-        return d_run_id_ele
-
-    @property
-    @lru_cache(maxsize=1)
-    def l_element(self):
-        return list(set.union(*map(set, self.d_l_element.values())))
+        return [i[0] for i in cursor.fetchall()]
 
     def db_get(self, table_name):
 
@@ -163,10 +155,9 @@ class BigData(object):
 
         cursor = c_row.execute("""SELECT *
                                   FROM {0}
-                                 WHERE {1}"""
-                               .format(table_name, sql_cmd_where))
+                                 WHERE {1}
+                               """.format(table_name, sql_cmd_where))
 
-        from collections import defaultdict
         from src.object import Energie
 
         d = defaultdict(dict)
@@ -183,6 +174,7 @@ class BigData(object):
     @property
     @lru_cache(maxsize=1)
     def d_e_db(self):
+
         return self.db_get("e_tab")
 
     # -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- #
@@ -194,25 +186,23 @@ class BigData(object):
     def d_ae_db(self):
 
         d = self.db_get("ae_tab")
-
         return d
 
     @property
     @lru_cache(maxsize=1)
     def d_ae_calc(self):
 
-        from collections import defaultdict
-
         d = defaultdict(dict)
 
         for run_id, d_mol in self.d_e.items():
             for ele, energy in d_mol.items():
 
-                if len(self.d_formula[ele]) == 1:
+                if len(get_formula(ele)) == 1:
                     continue
 
                 try:
-                    d[run_id][ele] = sum(d_mol[i] for i in self.d_formula[ele]) - d_mol[ele]
+                    d[run_id][ele] = sum(
+                        d_mol[i] for i in get_formula(ele)) - d_mol[ele]
                     d[run_id][ele] *= 627.503
 
                 except KeyError:
@@ -223,10 +213,20 @@ class BigData(object):
     @property
     @lru_cache(maxsize=1)
     def d_ae(self):
+
         d = self.d_ae_db.copy()
         d.update(self.d_ae_calc)
 
         return d
+
+    @property
+    @lru_cache(maxsize=1)
+    def d_ae_ref(self):
+
+        d_arguments = {"--run_id": [self.run_id_ref], "--with_children": True}
+        q = BigData(d_arguments=d_arguments)
+
+        return q.d_ae[self.run_id_ref]
 
     @property
     @lru_cache(maxsize=1)
@@ -238,18 +238,11 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def d_ae_deviation(self):
 
-        from collections import defaultdict
-
         d = defaultdict(dict)
-
-        assert self.run_id_ref, "You need to set a run reference for compute the deviation"
-        assert self.run_id_ref in self.l_run_id, "{0} need to be in {1}".format(
-            self.run_id_ref, self.l_run_id)
 
         for run_id, d_ae_run_id in self.d_ae.items():
 
-            for ele, energy, energy_ref in zipdic(d_ae_run_id,
-                                                  self.d_ae[self.run_id_ref]):
+            for ele, energy, energy_ref in zipdic(d_ae_run_id, self.d_ae_ref):
                 d[run_id][ele] = energy - energy_ref
 
         return d
@@ -264,11 +257,10 @@ class BigData(object):
             d[run_id] = mad
         return d
 
-
 if __name__ == '__main__':
     d_arguments = {"--run_id": [1, 8],
                    "--ele": ["MnCl"],
-                   "--all_children": True}
+                   "--with_children": True}
 
     q = BigData(d_arguments=d_arguments, run_id_ref="1")
     print q.d_ae

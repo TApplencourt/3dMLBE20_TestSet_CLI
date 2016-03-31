@@ -12,10 +12,11 @@ from src.Requirement_util import config
 import sys
 
 # Format dict
-d_format = defaultdict(lambda: '{0}')
+D_FORMAT = defaultdict(lambda: '{0}')
 for name, value in config.items("Format_dict"):
-    d_format[name] = config.get("Format_mesure", value)
+    D_FORMAT[name] = value
 
+L_FIELD= config.items("Display")[0][1].split()
 
 DEFAULT_CHARACTER = ""
 
@@ -31,7 +32,7 @@ def format_table(l_header, table_body):
     For all value in all ligne, format the table
     """
 
-    table_formated = [[d_format[h].format(v) for h, v in zip(l_header,l)] 
+    table_formated = [[D_FORMAT[h].format(v) if v else DEFAULT_CHARACTER for h, v in zip(l_header,l)] 
                       for l in table_body]
 
     return table_formated
@@ -84,11 +85,8 @@ def print_mad_recap(q, order_by="run_id"):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-
-    l_fields = "run_id method basis geo comments".split()
-
-    header_name = l_fields + ["mad"]
-    header_unit = [DEFAULT_CHARACTER] * len(l_fields) + ["kcal/mol"]
+    header_name = L_FIELD + ["mad"]
+    header_unit = [DEFAULT_CHARACTER] * len(L_FIELD) + ["kcal/mol"]
 
     # -#-#-#- #
     # B o d y #
@@ -99,7 +97,7 @@ def print_mad_recap(q, order_by="run_id"):
 
         l_info = q.d_run_info[run_id]
 
-        line = [getattr(l_info, field) for field in l_fields] + [mad]
+        line = [getattr(l_info, field) for field in L_FIELD] + [mad]
         table_body.append(line)
 
     # -#-#-#-#-#- #
@@ -134,58 +132,75 @@ def print_energie_recap(q, order_by="run_id",mode=3):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-    l_fields = "run_id method basis geo comments".split()
-
-    header_name = l_fields + ["ele"]
-    header_unit = [DEFAULT_CHARACTER] * (len(l_fields)+1)
+    header_name = L_FIELD + ["ele"]
+    header_unit = [DEFAULT_CHARACTER] * (len(L_FIELD)+1)
 
     # -#- #
     # A E #
     # -#- #
     if mode == 1 or mode == 3:
         header_name += "e".split()
+        header_unit += ["hartree"]
     if mode == 2 or mode == 3:
         header_name += "ae ae_ref ae_diff".split()
+        header_unit += ["kcal/mol"]*3
 
     table_body = []
     for run_id in q.l_run_id:
 
         l_info = q.d_run_info[run_id]
-        line = [getattr(l_info, field) for field in l_fields]
+        line = [getattr(l_info, field) for field in L_FIELD]
 
-        d_e = q.d_e[run_id]
-        d_ae = q.d_ae[run_id]
+        if mode == 1 or mode==3:
+            d_e = q.d_e[run_id]
+        
+        if mode == 2 or mode == 3:
+            d_ae = q.d_ae[run_id]
+            d_ae_ref = q.d_ae_ref
+            d_ae_deviation = q.d_ae_deviation[run_id]
 
-        for ele in set(d_e.keys()) | set(d_ae.keys()):
+        if mode == 1:
+            l = d_e.keys()
+        elif mode == 2:
+            l = d_ae.keys()
+        elif mode == 3:
+            l = set(d_e.keys()) | set(d_ae.keys())
+
+        if q.l_element_to_print != ['*']: 
+            s_ele = set(l) & set(q.l_element_to_print)
+        else:
+            s_ele = set(l)
+
+        for ele in s_ele:
 
             sentinel = False
 
             line_value = []
             if mode == 1 or mode==3:
+
                 if ele in d_e:
                     line_value.append(d_e[ele])
                     sentinel = True
                 else:
-                    line_value.append("")
+                    line_value.append(None)
 
             if mode == 2 or mode == 3:
+
                 if ele in d_ae:
                     line_value.append(d_ae[ele])
                     sentinel = True
                 else:
-                    line_value.append("")
+                    line_value.append(None)
 
-
-                if ele in q.d_ae[q.run_id_ref]:
-                    line_value.append(q.d_ae[q.run_id_ref][ele])
+                if ele in d_ae_ref:
+                    line_value.append(d_ae_ref[ele])
                 else:
-                    line_value.append("")
+                    line_value.append(None)
 
-
-                if ele in q.d_ae_deviation[run_id]:
-                    line_value.append(q.d_ae_deviation[run_id][ele])
+                if ele in d_ae_deviation:
+                    line_value.append(d_ae_deviation[ele])
                 else:
-                    line_value.append(""*3)
+                    line_value.append(None)
 
             if sentinel:
                 table_body.append(line+[ele]+line_value)
@@ -204,5 +219,20 @@ def print_energie_recap(q, order_by="run_id",mode=3):
     table_body = [map(str, i) for i in table_body]
     table_data = [header_name] + [header_unit] + table_body
 
+    mode = config.get("Size", "mode")
+
     table_big = AsciiTable(table_data)
-    print table_big.table(row_separator=2)
+
+    if all([mode == "Auto", not table_big.ok]) or mode == "Small":
+
+        table_data_top = [i[:len(L_FIELD)] for i in table_data]
+        table_data_botom = [i[0:1]+i[len(L_FIELD):] for i in table_data]
+
+        table_big = AsciiTable(table_data_top)
+        print table_big.table(row_separator=2)
+
+        table_big = AsciiTable(table_data_botom)
+        print table_big.table(row_separator=2)
+
+    else:
+        print table_big.table(row_separator=2)

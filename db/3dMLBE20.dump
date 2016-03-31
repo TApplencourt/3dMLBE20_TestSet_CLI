@@ -11,46 +11,45 @@ INSERT INTO "units_tab" VALUES('atomization','kcal/mol',0.00159362);
 CREATE TABLE ele_tab(
              id INTEGER UNIQUE,
            name CHARACTER(32) PRIMARY KEY,
-        formula CHARACTER(32),
          charge INTEGER,
    multiplicity INTEGER,
       num_atoms INTEGER,
        num_elec INTEGER,
        symmetry CHARACTER(16)
 );
-INSERT INTO "ele_tab" VALUES(1,'TiCl','[(''Ti'', 1),(''Cl'', 1)]',0,4,2,39,'psi');
-INSERT INTO "ele_tab" VALUES(2,'VH','[(''V'', 1),(''H'', 1)]',0,5,2,24,'delta');
-INSERT INTO "ele_tab" VALUES(3,'VO','[(''O'', 1),(''V'', 1)]',0,4,2,31,'A2');
-INSERT INTO "ele_tab" VALUES(4,'VCl','[(''V'', 1),(''Cl'', 1)]',0,5,2,40,'delta');
-INSERT INTO "ele_tab" VALUES(5,'CrH','[(''Cr'', 1),(''H'', 1)]',0,6,2,25,'A1');
-INSERT INTO "ele_tab" VALUES(6,'CrO','[(''O'', 1),(''Cr'', 1)]',0,5,2,32,'pi');
-INSERT INTO "ele_tab" VALUES(7,'CrCl','[(''Cr'', 1),(''Cl'', 1)]',0,6,2,41,'A1');
-INSERT INTO "ele_tab" VALUES(8,'MnS','[(''Mn'', 1),(''S'', 1)]',0,6,2,41,'A1');
-INSERT INTO "ele_tab" VALUES(9,'MnCl','[(''Mn'', 1),(''Cl'', 1)]',0,7,2,42,'A1');
-INSERT INTO "ele_tab" VALUES(10,'FeH','[(''Fe'', 1),(''H'', 1)]',0,4,2,27,'delta');
-INSERT INTO "ele_tab" VALUES(11,'FeCl','[(''Fe'', 1),(''Cl'', 1)]',0,6,2,43,'delta');
-INSERT INTO "ele_tab" VALUES(12,'CoH','[(''Co'', 1),(''H'', 1)]',0,3,2,28,'psi');
-INSERT INTO "ele_tab" VALUES(13,'CoCl','[(''Co'', 1),(''Cl'', 1)]',0,3,2,44,'psi');
-INSERT INTO "ele_tab" VALUES(14,'NiCl','[(''Ni'', 1),(''Cl'', 1)]',0,2,2,45,'pi');
-INSERT INTO "ele_tab" VALUES(15,'CuH','[(''Cu'', 1),(''H'', 1)]',0,1,2,30,'A1');
-INSERT INTO "ele_tab" VALUES(16,'CuCl','[(''Cu'', 1),(''Cl'', 1)]',0,1,2,46,'sigma');
-INSERT INTO "ele_tab" VALUES(17,'ZnH','[(''Zn'', 1),(''H'', 1)]',0,2,2,31,'A1');
-INSERT INTO "ele_tab" VALUES(18,'ZnO','[(''O'', 1),(''Zn'', 1)]',0,1,2,38,'sigma');
-INSERT INTO "ele_tab" VALUES(19,'ZnS','[(''Zn'', 1),(''S'', 1)]',0,1,2,46,'sigma');
-INSERT INTO "ele_tab" VALUES(20,'ZnCl','[(''Zn'', 1),(''Cl'', 1)]',0,2,2,47,'sigma');
-INSERT INTO "ele_tab" VALUES(21,'Ti','[(''Ti'', 1)]',0,3,1,22,'F');
-INSERT INTO "ele_tab" VALUES(22,'V','[(''V'', 1)]',0,4,1,23,'F');
-INSERT INTO "ele_tab" VALUES(23,'Cr','[(''Cr'', 1)]',0,7,1,24,'S');
-INSERT INTO "ele_tab" VALUES(24,'Mn','[(''Mn'', 1)]',0,6,1,25,'S');
-INSERT INTO "ele_tab" VALUES(25,'Fe','[(''Fe'', 1)]',0,5,1,26,'D');
-INSERT INTO "ele_tab" VALUES(26,'Co','[(''Co'', 1)]',0,4,1,27,'F');
-INSERT INTO "ele_tab" VALUES(27,'Ni','[(''Ni'', 1)]',0,3,1,28,'F');
-INSERT INTO "ele_tab" VALUES(28,'Cu','[(''Cu'', 1)]',0,2,1,29,'S');
-INSERT INTO "ele_tab" VALUES(29,'Zn','[(''Zn'', 1)]',0,1,1,30,'S');
-INSERT INTO "ele_tab" VALUES(30,'H','[(''H'', 1)]',0,2,1,1,'S');
-INSERT INTO "ele_tab" VALUES(31,'O','[(''O'', 1)]',0,3,1,8,'P');
-INSERT INTO "ele_tab" VALUES(32,'S','[(''S'', 1)]',0,3,1,16,'P');
-INSERT INTO "ele_tab" VALUES(33,'Cl','[(''Cl'', 1)]',0,2,1,17,'P');
+INSERT INTO "ele_tab" VALUES(1,'TiCl',0,4,2,39,'psi');
+INSERT INTO "ele_tab" VALUES(2,'VH',0,5,2,24,'delta');
+INSERT INTO "ele_tab" VALUES(3,'VO',0,4,2,31,'A2');
+INSERT INTO "ele_tab" VALUES(4,'VCl',0,5,2,40,'delta');
+INSERT INTO "ele_tab" VALUES(5,'CrH',0,6,2,25,'A1');
+INSERT INTO "ele_tab" VALUES(6,'CrO',0,5,2,32,'pi');
+INSERT INTO "ele_tab" VALUES(7,'CrCl',0,6,2,41,'A1');
+INSERT INTO "ele_tab" VALUES(8,'MnS',0,6,2,41,'A1');
+INSERT INTO "ele_tab" VALUES(9,'MnCl',0,7,2,42,'A1');
+INSERT INTO "ele_tab" VALUES(10,'FeH',0,4,2,27,'delta');
+INSERT INTO "ele_tab" VALUES(11,'FeCl',0,6,2,43,'delta');
+INSERT INTO "ele_tab" VALUES(12,'CoH',0,3,2,28,'psi');
+INSERT INTO "ele_tab" VALUES(13,'CoCl',0,3,2,44,'psi');
+INSERT INTO "ele_tab" VALUES(14,'NiCl',0,2,2,45,'pi');
+INSERT INTO "ele_tab" VALUES(15,'CuH',0,1,2,30,'A1');
+INSERT INTO "ele_tab" VALUES(16,'CuCl',0,1,2,46,'sigma');
+INSERT INTO "ele_tab" VALUES(17,'ZnH',0,2,2,31,'A1');
+INSERT INTO "ele_tab" VALUES(18,'ZnO',0,1,2,38,'sigma');
+INSERT INTO "ele_tab" VALUES(19,'ZnS',0,1,2,46,'sigma');
+INSERT INTO "ele_tab" VALUES(20,'ZnCl',0,2,2,47,'sigma');
+INSERT INTO "ele_tab" VALUES(21,'Ti',0,3,1,22,'F');
+INSERT INTO "ele_tab" VALUES(22,'V',0,4,1,23,'F');
+INSERT INTO "ele_tab" VALUES(23,'Cr',0,7,1,24,'S');
+INSERT INTO "ele_tab" VALUES(24,'Mn',0,6,1,25,'S');
+INSERT INTO "ele_tab" VALUES(25,'Fe',0,5,1,26,'D');
+INSERT INTO "ele_tab" VALUES(26,'Co',0,4,1,27,'F');
+INSERT INTO "ele_tab" VALUES(27,'Ni',0,3,1,28,'F');
+INSERT INTO "ele_tab" VALUES(28,'Cu',0,2,1,29,'S');
+INSERT INTO "ele_tab" VALUES(29,'Zn',0,1,1,30,'S');
+INSERT INTO "ele_tab" VALUES(30,'H',0,2,1,1,'S');
+INSERT INTO "ele_tab" VALUES(31,'O',0,3,1,8,'P');
+INSERT INTO "ele_tab" VALUES(32,'S',0,3,1,16,'P');
+INSERT INTO "ele_tab" VALUES(33,'Cl',0,2,1,17,'P');
 CREATE TABLE basis_tab(
     basis_id INTEGER PRIMARY KEY AUTOINCREMENT,
         name CHARACTER(32),
@@ -109,7 +108,7 @@ INSERT INTO "run_tab" VALUES(15,1,8,3,'1M dets');
 INSERT INTO "run_tab" VALUES(16,1,10,3,'1M dets');
 INSERT INTO "run_tab" VALUES(17,1,10,3,'1M dets (+PT2)');
 INSERT INTO "run_tab" VALUES(18,1,11,3,'1M dets nopert');
-INSERT INTO "run_tab" VALUES(19,1,11,3,'1M dets 1 iteration nopert');
+INSERT INTO "run_tab" VALUES(19,1,11,3,'1M dets 1 iter nopert');
 INSERT INTO "run_tab" VALUES(20,1,8,3,'100k dets');
 INSERT INTO "run_tab" VALUES(21,1,8,3,'100k dets (+PT2)');
 CREATE TABLE coord_tab(

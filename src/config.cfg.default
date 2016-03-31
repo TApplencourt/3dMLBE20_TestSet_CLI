@@ -1,50 +1,13 @@
-# Info for knowing the reference for estimated exact energy
-# * Rude is this formula : ae + zpe + sum e_atom
-# * Feller is Feller paper
-# * O'Neill is O'Neill paper
-[estimated_exact]
-method: Feller
-atomic: Chakravorty
-
-# Info for the zpe and ae referance
-# NIST
-# literature
-# recomended
-[ZPE_AE]
-value: literature
-
-# Info for the formating
-[Format_mesure]
-pouce = {:>7.3f}
-arpent = {:>10.3f}
-f_mad = {:>5.2f}
-f_rel ={:>0.5f}
-
 [Format_dict]
-mad: f_mad 
-e_cal: arpent
-zpe_exp: pouce
-e_nr: arpent
-e_diff: pouce
-e_diff_rel:f_rel
-ae_th: pouce
-ae_nr: pouce
-ae_cal: pouce
-ae_exp: pouce
-ae_diff: pouce
+mad:     {:>5.2f}
+e:       {:>9.3f}
+ae:      {:>7.3f}
+ae_ref:  {:>7.3f}
+ae_diff: {:>10.3f}
 
-[Unit_dict]
-# Hartree
-# or kcal/mol
-e_cal: Hartree
-zpe_exp: Hartree
-e_nr: Hartree
-e_diff: kcal/mol
-ae_cal: kcal/mol
-ae_th: Hartree
-ae_nr: kcal/mol
-ae_exp: Hartree
-ae_diff: kcal/mol
+[Display]
+# You can choose in 'run_id method geo basis comments'
+l_field: run_id method basis comments
 
 # Size of the display (by default is auto)
 # Auto, Small, Big
