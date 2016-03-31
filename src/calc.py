@@ -113,7 +113,8 @@ class BigData(object):
     def l_element_whe_want(self):
 
         l_ele = self.l_element_to_print
-        if self.check("--ae") or self.check("list_run") and not l_ele == ["*"] and not self.check("--like_run_id"):
+        l = [self.check("--ae"),self.check("list_run"), not l_ele == ["*"],  not self.check("--like_run_id")]
+        if any(l):
             l_ele = list(set(l_ele + [a for ele in l_ele for a in self.get_formula(ele)]))
 
         return l_ele
