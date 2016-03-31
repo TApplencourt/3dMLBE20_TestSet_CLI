@@ -5,19 +5,6 @@ ae:      {:>7.3f}
 ae_ref:  {:>7.3f}
 ae_diff: {:>10.3f}
 
-[Unit_dict]
-# Hartree
-# or kcal/mol
-e_cal: Hartree
-zpe_exp: Hartree
-e_nr: Hartree
-e_diff: kcal/mol
-ae_cal: kcal/mol
-ae_th: Hartree
-ae_nr: kcal/mol
-ae_exp: Hartree
-ae_diff: kcal/mol
-
 [Display]
 # You can choose in 'run_id method geo basis comments'
 l_field: run_id method basis comments
