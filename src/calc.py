@@ -1,13 +1,13 @@
 #!/usr/bin/python
-
-from src.SQL_util import c, c_row
-from src.SQL_util import cond_sql_or
-
 from collections import namedtuple
 from collections import defaultdict
 
-from src.__init__ import lru_cache, zipdic
+from src.__init__ import lru_cache
+from src.__init__ import zipdic
+from src.__init__ import cond_sql_or
+from src.__init__ import get_formula
 
+from src.SQL_util import c, c_row
 
 class BigData(object):
 
@@ -74,22 +74,8 @@ class BigData(object):
     def l_run_id(self):
         return self.d_run_info.keys()
 
-    @lru_cache(maxsize=1)
-    def get_formula(self, ele):
-        import re
-
-        def s2i(str_):
-            return int(str_) if str_ else 1
-
-        l_formula_raw = re.findall(r'([A-Z][a-z]*)(\d*)', ele)
-        l_formula_tuple = [(atome, s2i(char_number))
-                           for atome, char_number in l_formula_raw]
-        l_formula_flaten = [a for a, nb in l_formula_tuple for i in range(nb)]
-
-        return l_formula_flaten
-
     def get_l_children(self, l_ele):
-        return list(set([a for ele in l_ele for a in self.get_formula(ele)]))
+        return list(set([a for ele in l_ele for a in get_formula(ele)]))
 
     @property
     @lru_cache(maxsize=1)
@@ -213,12 +199,12 @@ class BigData(object):
         for run_id, d_mol in self.d_e.items():
             for ele, energy in d_mol.items():
 
-                if len(self.get_formula(ele)) == 1:
+                if len(get_formula(ele)) == 1:
                     continue
 
                 try:
                     d[run_id][ele] = sum(
-                        d_mol[i] for i in self.get_formula(ele)) - d_mol[ele]
+                        d_mol[i] for i in get_formula(ele)) - d_mol[ele]
                     d[run_id][ele] *= 627.503
 
                 except KeyError:

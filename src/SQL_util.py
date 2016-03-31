@@ -10,6 +10,8 @@ except:
     print "Sorry, you need sqlite3"
     sys.exit(1)
 
+from src.__init__ import get_formula
+from src.__init__ import cond_sql_or
 #  _
 # /  ._ _   _. _|_  _     _     ._ _  _  ._
 # \_ | (/_ (_|  |_ (/_   (_ |_| | _> (_) |
@@ -29,34 +31,6 @@ c = conn.cursor()
 conn.row_factory = sqlite3.Row
 c_row = conn.cursor()
 
-
-def cond_sql_or(table_name, l_value, glob=True):
-    # Create the OR condition for a WHERE filter
-
-    l = []
-
-    operator = "GLOB" if glob else "=="
-
-    dmy = " OR ".join(['{} {} "{}"'.format(table_name,operator,i) for i in l_value])
-    if dmy:
-        l.append("(%s)" % dmy)
-
-    return l
-
-def cond_sql_and(table_name, l_value, glob=True):
-    # Create the OR condition for a WHERE filter
-
-    l = []
-
-    operator = "GLOB" if glob else "=="
-
-    dmy = " AND ".join(['{} {} "{}"'.format(table_name,operator,i) for i in l_value])
-    if dmy:
-        l.append("(%s)" % dmy)
-
-    return l
-
-
 #  _____      _
 # |  __ \    | |
 # | |  \/ ___| |_
@@ -64,14 +38,16 @@ def cond_sql_and(table_name, l_value, glob=True):
 # | |_\ \  __/ |_
 #  \____/\___|\__|
 #
-def get_coord(id, atom, geo):
+def get_coord(mol, atom, geo):
+
+    mol_id = get_mol_id(mol)
     # Only work if, id, atom, already exist
     c.execute(''' SELECT x,y,z FROM coord_tab NATURAL JOIN geo_tab
-                WHERE mol_id =?  AND
-                      atom=? AND
-                      name = ?''', [id, atom, geo])
+                    WHERE mol_id =? AND
+                          atom=? AND
+                          name = ?''', [mol_id, atom, geo])
 
-    return c.fetchall()
+    return c.fetchall()[0]
 
 
 def get_mol_id(name):
@@ -159,7 +135,6 @@ def add_or_get_run(method, basis, geo, comments):
     finally:
         return get_run_id(method, basis, geo, comments)
 
-
 def add_energy(run_id, name, e, err, overwrite=False, commit=False):
 
     if overwrite:
@@ -182,45 +157,30 @@ def add_energy(run_id, name, e, err, overwrite=False, commit=False):
 # | |/ /| | (__| |_
 # |___/ |_|\___|\__|
 #
-def full_dict(geo_name=None):
-    d = dict_raw()
 
-    for i, dic_ele in d.items():
+from collections import defaultdict
 
-        formula_flat = []
-        a = []
-        for [atom, nb] in dic_ele["formula"]:
-            for l in range(0, nb):
-                formula_flat.append(atom)
+def get_dict_element():
+    c.execute('''SELECT id,name,charge,multiplicity,
+                        num_atoms,num_elec,symmetry FROM ele_tab''')
 
-            if geo_name:
-                list_ = get_coord(dic_ele["id"], atom, geo_name)
-                if not list_:
-                    del d[i]
-                    break
-                else:
-                    a += list_
+    d = defaultdict(dict)
 
-        dic_ele["formula_flat"] = formula_flat
-
-        if geo_name:
-            dic_ele["list_xyz"] = a
-
-    return dict(d)
-
-
-def dict_raw():
-    c.execute(
-        '''SELECT id,name,formula,charge,multiplicity,num_atoms,num_elec,symmetry FROM ele_tab''')
-
-    d = {}
     for i in c.fetchall():
         d[str(i[1])] = {"id": str(i[0]),
-                        "formula": eval(i[2]),
-                        "charge": int(i[3]),
-                        "multiplicity": int(i[4]),
-                        "num_atoms": int(i[5]),
+                        "charge": int(i[2]),
+                        "multiplicity": int(i[3]),
+                        "num_atoms": int(i[4]),
                         "symmetry": str(i[6])}
+
+    for ele in d:
+            f = get_formula(ele)
+            d[ele]["formula"] = f
+
+            for geo in list_geo():
+
+                l = [get_coord(ele, a, geo) for a in f]
+                d[ele][geo] = l
 
     return d
 
@@ -231,47 +191,53 @@ def dict_raw():
 # | || (_) | |  | | | | | | (_| | |_
 # \_| \___/|_|  |_| |_| |_|\__,_|\__|
 #
-def get_xyz(geo, ele, only_neutral=True):
-    b = full_dict(geo)
+def get_multiplicity(ele):
+    d = get_dict_element()
+    d_ele = d[ele]
 
-    dic_ = b[ele]
+    assert d_ele, "No multiplicity for ele {0}".format(ele)
+    return d_ele["multiplicity"]
 
-    xyz_file_format = [dic_["num_atoms"]]
+def get_xyz(geo, ele):
+    d = get_dict_element()
 
-    line = " ".join(map(str, [ele,
-                              "Geo:", geo,
-                              "Mult:", dic_["multiplicity"],
-                              "Symmetry:", dic_["symmetry"]]))
+    d_ele = d[ele]
+
+    xyz_file_format = [d_ele["num_atoms"]]
+
+    str_ = "{0} Geo: {1} Mult: {2} Symmetry: {3}"
+    line = str_.format(ele,geo,d_ele["multiplicity"],d_ele["symmetry"])
+
     xyz_file_format.append(line)
 
-    for atom, xyz in zip(dic_["formula_flat"], dic_["list_xyz"]):
+    for atom, xyz in zip(d_ele["formula"], d_ele[geo]):
         line_xyz = "    ".join(map(str, xyz))
-        line = "    ".join([atom, line_xyz])
+        line = "{0}    {1}".format(atom, line_xyz)
 
         xyz_file_format.append(line)
 
     return "\n".join(map(str, xyz_file_format))
 
 
-def get_g09(geo, ele, only_neutral=True):
-    b = full_dict(geo)
+def get_g09(geo, ele):
+    d = get_dict_element()
 
-    dic_ = b[ele]
+    d_ele = d[ele]
 
-    line = " ".join(map(str, [ele,
-                              "Geo:", geo,
-                              "Mult:", dic_["multiplicity"],
-                              "symmetry:", dic_["symmetry"]]))
+    str_ = "{0} Geo: {1} Mult: {2} Symmetry: {3}"
+    line = str_.format(ele,geo,d_ele["multiplicity"],d_ele["symmetry"])
 
-    method = "RHF" if dic_["multiplicity"] == 1 else "ROHF"
+    method = "RHF" if d_ele["multiplicity"] == 1 else "ROHF"
 
-    g09_file_format = ["# cc-pvdz %s" % (method), "", line, "",
-                       "%d %d" % (dic_["charge"], dic_["multiplicity"])]
+    g09_file_format = ["# cc-pvdz {0}".format(method), 
+                        "", line, "",
+                       "{0} {1}".format(d_ele["charge"], d_ele["multiplicity"])]
 
-    for atom, xyz in zip(dic_["formula_flat"], dic_["list_xyz"]):
+    for atom, xyz in zip(d_ele["formula_flat"], d_ele[geo]):
         line_xyz = "    ".join(map(str, xyz)).replace("e", ".e")
         line = "    ".join([atom, line_xyz])
 
         g09_file_format.append(line)
     g09_file_format.append("\n\n\n")
+
     return "\n".join(map(str, g09_file_format))
