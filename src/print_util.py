@@ -211,9 +211,14 @@ def print_energie_recap(q, order_by="run_id",mode=3):
 
     table_big = AsciiTable(table_data)
 
+
     if all([mode == "Auto", not table_big.ok]) or mode == "Small":
 
-        table_data_top = [i[:len(L_FIELD)] for i in table_data]
+        table_data_top = []
+        for i in table_data:
+            l = i[:len(L_FIELD)]
+            if l not in table_data_top: table_data_top.append(l)
+
         table_data_botom = [i[0:1]+i[len(L_FIELD):] for i in table_data]
 
         table_big = AsciiTable(table_data_top)
