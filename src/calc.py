@@ -98,8 +98,8 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def l_element_whe_ask(self):
 
-        if self.check("--ele"):
-            l_ele = self.d_arguments["--ele"]
+        if self.check("--with"):
+            l_ele = self.d_arguments["--with"]
         elif self.check("--like-sr7"):
             l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
         elif self.check("--like-mr13"):
@@ -295,7 +295,7 @@ class BigData(object):
 
 if __name__ == '__main__':
     d_arguments = {"--run_id": [1, 8],
-                   "--ele": ["MnCl"],
+                   "--with": ["MnCl"],
                    "--with_children": True}
 
     q = BigData(d_arguments=d_arguments, run_id_ref="1")
