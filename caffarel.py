@@ -10,7 +10,7 @@ Usage:
                                     [--geo=<geometry_name>...]
                                     [--comments=<comments>...])]
                   [(  --ele=<element_name>...
-                    | --like_run_id=<run_id> 
+                    | --like-run=<id> 
                     | --like-sr7
                     | --like-mr13 ) [--with_children]]
                   [--order_by=<column>...]

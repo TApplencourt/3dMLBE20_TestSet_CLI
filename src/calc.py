@@ -87,7 +87,7 @@ class BigData(object):
         l_ele = [i[0] for i in cursor]
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like_run_id"])
+        assert (l_ele), str_.format(self.d_arguments["--like-run"])
 
         return l_ele
 
@@ -105,8 +105,8 @@ class BigData(object):
         elif self.check("--like-mr13"):
             l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
                      "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.check("--like_run_id"):
-            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
+        elif self.check("--like-run"):
+            l_ele = self.db_list_element(self.d_arguments["--like-run"])
         else:
             l_ele = ["*"]
 
@@ -123,7 +123,7 @@ class BigData(object):
 
         if any([self.check("ae"), self.check("list_run"), 
                 not l_ele == ["*"],
-                not self.check("--like_run_id")]):
+                not self.check("--like-run")]):
 
             l_child = self.get_l_children(l_ele)
             l_ele = list(set(l_ele) | set(l_child))
@@ -161,10 +161,10 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def l_run_id_to_print(self):
 
-        if not self.check("--like_run_id"):
+        if not self.check("--like-run"):
             l = self.d_ae.keys()
         else:
-            run_id = int(self.d_arguments["--like_run_id"])
+            run_id = int(self.d_arguments["--like-run"])
             l_mol_ref = self.d_ae[run_id].keys()
             l = [ run_id  for run_id,d in self.d_ae.iteritems() if set(l_mol_ref) <= set(d.keys())]
         return l
