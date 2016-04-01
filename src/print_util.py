@@ -117,7 +117,6 @@ def print_mad_recap(q, order_by="run_id"):
     table_big = AsciiTable(table_data)
     print table_big.table(row_separator=2)
 
-
 def print_energie_recap(q, order_by="run_id",mode=3):
 
     # -#-#-#- #
@@ -151,32 +150,21 @@ def print_energie_recap(q, order_by="run_id",mode=3):
         l_info = q.d_run_info[run_id]
         line = [getattr(l_info, field) for field in L_FIELD]
 
-        if mode == 1 or mode==3:
+        if mode in [1,3]:
             d_e = q.d_e[run_id]
-        
-        if mode == 2 or mode == 3:
+
+        if mode in [2,3]:
             d_ae = q.d_ae[run_id]
             d_ae_ref = q.d_ae_ref
             d_ae_deviation = q.d_ae_deviation[run_id]
 
-        if mode == 1:
-            l = d_e.keys()
-        elif mode == 2:
-            l = d_ae.keys()
-        elif mode == 3:
-            l = set(d_e.keys()) | set(d_ae.keys())
-
-        if q.l_element_to_print != ['*']: 
-            s_ele = set(l) & set(q.l_element_to_print)
-        else:
-            s_ele = set(l)
-
-        for ele in s_ele:
+        for ele in q.l_element_to_print:
 
             sentinel = False
 
             line_value = []
-            if mode == 1 or mode==3:
+    
+            if mode in [1,3]:
 
                 if ele in d_e:
                     line_value.append(d_e[ele])
@@ -184,7 +172,7 @@ def print_energie_recap(q, order_by="run_id",mode=3):
                 else:
                     line_value.append(None)
 
-            if mode == 2 or mode == 3:
+            if mode in [2,3]:
 
                 if ele in d_ae:
                     line_value.append(d_ae[ele])

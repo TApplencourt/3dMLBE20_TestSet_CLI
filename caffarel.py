@@ -6,9 +6,9 @@ Usage:
   caffarel.py (-h | --help)
   caffarel.py get [e] [ae]
                   [--run=<id>... | ([--method=<method_name>...]
-                                       [--basis=<basis_name>...]
-                                       [--geo=<geometry_name>...]
-                                       [--comments=<comments>...])]
+                                    [--basis=<basis_name>...]
+                                    [--geo=<geometry_name>...]
+                                    [--comments=<comments>...])]
                   [(  --ele=<element_name>...
                     | --like_run_id=<run_id>...
                     | --like-sr7

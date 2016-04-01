@@ -75,8 +75,6 @@ class BigData(object):
     def get_l_children(self, l_ele):
         return list(set([a for ele in l_ele for a in get_formula(ele)]))
 
-    @property
-    @lru_cache(maxsize=1)
     def db_list_element(self, l_run_id):
 
         sql_cmd_where = "".join(cond_sql_or("run_id", l_run_id))
@@ -89,7 +87,7 @@ class BigData(object):
         l_ele = [i[0] for i in cursor]
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like_run_id"])
+        assert (l_ele), str_.format(self.d_arguments["--like-run"])
 
         return l_ele
 
@@ -98,21 +96,7 @@ class BigData(object):
 
     @property
     @lru_cache(maxsize=1)
-    def l_element_whe_want(self):
-
-        l_ele = self.l_element_to_print
-
-        if any([self.check("ae"), self.check("list_run"), not l_ele == ["*"],
-                not self.check("--like_run_id")]):
-
-            l_child = self.get_l_children(l_ele)
-            l_ele = list(set(l_ele) | set(l_child))
-
-        return l_ele
-
-    @property
-    @lru_cache(maxsize=1)
-    def l_element_to_print(self):
+    def l_element_whe_ask(self):
 
         if self.check("--ele"):
             l_ele = self.d_arguments["--ele"]
@@ -121,13 +105,28 @@ class BigData(object):
         elif self.check("--like-mr13"):
             l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
                      "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.check("--like_run_id"):
-            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
+        elif self.check("--like-run"):
+            l_ele = self.db_list_element(self.d_arguments["--like-run"])
         else:
             l_ele = ["*"]
 
         if self.check("--with_children") and not l_ele == ["*"]:
             l_ele += self.get_l_children(l_ele)
+
+        return l_ele
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element_whe_want(self):
+
+        l_ele = self.l_element_whe_ask
+
+        if any([self.check("ae"), self.check("list_run"), 
+                not l_ele == ["*"],
+                not self.check("--like-run")]):
+
+            l_child = self.get_l_children(l_ele)
+            l_ele = list(set(l_ele) | set(l_child))
 
         return l_ele
 
@@ -146,6 +145,17 @@ class BigData(object):
                                """.format(sql_cmd_where))
 
         return [i[0] for i in cursor.fetchall()]
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element_to_print(self):
+
+        if self.l_element_whe_ask == ["*"]:
+            l_ele = self.l_element
+        else:
+            l_ele = self.l_element_whe_ask
+
+        return l_ele
 
     def db_get(self, table_name):
 
