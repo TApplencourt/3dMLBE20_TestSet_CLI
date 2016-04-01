@@ -51,10 +51,10 @@ if __name__ == '__main__':
     if not mode:
         mode = 3
 
-    if d_arguments["plotly"]:
+    from src.print_util import print_energie_recap
+    print_energie_recap(q,order_by=d_arguments["--order_by"],mode=mode)
 
-      from src.print_util import print_energie_recap
-      print_energie_recap(q,order_by=d_arguments["--order_by"],mode=mode)
+    if d_arguments["plotly"]:
 
       from src.print_util import print_plotly
       print_plotly(q)

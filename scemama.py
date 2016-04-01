@@ -14,6 +14,14 @@ Usage:
   scemama.py get_g09    --geo=<geometry_name>...
                         --ele=<element_name>...
                               [(--save [--path=<path>])]
+  scemama.py get_target_pt2_max --hf=<id>
+                                --target=<id>
+                                [--quality_factor=<qf>]
+
+Options:
+  --ref=<id>               Speed in knots [default: 1].
+  --quality_factor=<vqf>   QSkdsjkdsfj [default: 0].  
+
 Example of use:
   ./scemama.py list_geometries
   ./scemama.py list_elements --geo Experiment
@@ -158,9 +166,9 @@ if __name__ == '__main__':
     
             print ", ".join(r)
         elif arguments['--run']:
+
             from src.calc import BigData
             q = BigData(d_arguments=arguments)
-
             print ", ".join(q.l_element)
 
     elif arguments["get_multiplicity"]:
@@ -202,7 +210,6 @@ if __name__ == '__main__':
             if arguments["--path"]:
                 path = arguments["--path"]
             else:
-
                 name = "{0}.{1}".format("_".join(l_geo+l_ele),g.ext)
                 path = os.path.join("/tmp/",name)
 
@@ -213,3 +220,55 @@ if __name__ == '__main__':
         else:
             print str_
 
+    elif arguments["get_target_pt2_max"]:
+
+        hf_id = int(arguments["--hf"])
+        fci_id = int(arguments["--target"])
+
+        arguments["--run"]=[hf_id,fci_id]
+
+        from src.calc import BigData
+        q = BigData(d_arguments=arguments)
+
+        from src.__init__ import get_formula
+
+
+        # -#-#-#-#-#-#-#-#-#-#-#- #
+        # D _ t a r g e t _ p t 2 #
+        # -#-#-#-#-#-#-#-#-#-#-#- #
+
+        from collections import defaultdict
+        d_target_pt2 = defaultdict(lambda: 0.)
+
+        for ele in q.l_element:
+            try:
+                for name_atome in get_formula(ele):
+                    dump = (q.d_e[fci_id][name_atome] - q.d_e[hf_id][name_atome])
+                    d_target_pt2[ele] += dump
+            except KeyError:
+                pass
+
+        # -#-#-#-#-#-#-#-#-#-#-#-#-#- #
+        # Q u a l i t y _ f a c t o r #
+        # -#-#-#-#-#-#-#-#-#-#-#-#-#- #
+
+        if arguments["--quality_factor"]:
+            if not 0. <= float(arguments["--quality_factor"]) <= 1.:
+                print "0. < quality factor < 1. "
+                sys.exit(1)
+            else:
+                quality_factor = float(arguments["--quality_factor"])
+        else:
+            quality_factor = 0.
+
+        #  _
+        # |_) ._ o ._ _|_
+        # |   |  | | | |_
+        #
+        print "{0:<7} {1:<8} {2:>15}  quality_factor: {3}".format("Ele","Target_PT2","Target_Energie",quality_factor)
+        str_ = "{0:<7} {1:<8.4f} {2:>17.4f}"
+
+        for ele, target_pt2 in d_target_pt2.iteritems():
+            ept2 = target_pt2 * (1 - quality_factor)
+            efci = q.d_e[fci_id][ele]
+            print str_.format(ele, ept2, efci-ept2)
