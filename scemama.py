@@ -6,7 +6,7 @@
 Usage:
   scemama.py (-h | --help)
   scemama.py list_geometries  [--ele=<element_name>...]
-  scemama.py list_elements     --geo=<geometry_name>...
+  scemama.py list_elements    (--geo=<geometry_name>... | --run=<id>...)
   scemama.py get_multiplicity  --ele=<element_name>...
   scemama.py get_xyz    --geo=<geometry_name>...
                         --ele=<element_name>...
@@ -148,13 +148,20 @@ if __name__ == '__main__':
 
     elif arguments["list_elements"]:
 
-        cond = cond_sql_or("geo_tab.name", arguments["--geo"])
-        where = "AND".join(str_)
+        if arguments['--geo']:
+    
+            cond = cond_sql_or("geo_tab.name", arguments["--geo"])
+            where = "AND".join(str_)
+    
+            r = list_ele(where_cond=where)
+            assert r, "No element for {0} geometries".format(arguments["--geo"])
+    
+            print ", ".join(r)
+        elif arguments['--run']:
+            from src.calc import BigData
+            q = BigData(d_arguments=arguments)
 
-        r = list_ele(where_cond=where)
-        assert r, "No element for {0} geometries".format(arguments["--geo"])
-
-        print ", ".join(r)
+            print ", ".join(q.l_element)
 
     elif arguments["get_multiplicity"]:
         l_ele = arguments["--ele"]
