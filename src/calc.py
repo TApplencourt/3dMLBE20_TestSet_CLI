@@ -9,6 +9,7 @@ from src.__init__ import get_formula
 
 from src.SQL_util import c, c_row
 
+
 class BigData(object):
 
     # ___           
@@ -121,8 +122,7 @@ class BigData(object):
 
         l_ele = self.l_element_whe_ask
 
-        if any([self.check("ae"), self.check("list_run"), 
-                not l_ele == ["*"],
+        if any([self.check("ae"), self.check("list_run"), not l_ele == ["*"],
                 not self.check("--like-run")]):
 
             l_child = self.get_l_children(l_ele)
@@ -156,13 +156,16 @@ class BigData(object):
             run_id = int(self.d_arguments["--like-run"])
 
             if self.d_arguments["--respect_to"] == "e":
-                l_mol_ref = self.d_e[run_id].keys()
-                l = [ run_id  for run_id,d in self.d_e.iteritems() if set(l_mol_ref) <= set(d.keys())]
+                l_ref = self.d_e[run_id].keys()
+                d_v = self.d_e.iteritems()
             elif self.d_arguments["--respect_to"] == "ae":
-                l_mol_ref = self.d_ae[run_id].keys()
-                l = [ run_id  for run_id,d in self.d_ae.iteritems() if set(l_mol_ref) <= set(d.keys())]
+                l_ref = self.d_ae[run_id].keys()
+                d_v = self.d_ae.iteritems()
             else:
-                assert (False),"--respect_to need to be e or ae"
+                assert (False), "--respect_to need to be e or ae"
+
+            l = [run_id for run_id, d in d_v if set(l_ref) <= set(d.keys())]
+
         return l
 
     @property
@@ -173,6 +176,7 @@ class BigData(object):
             l_ele = self.l_element
         elif self.check("--like-run"):
             run_id = int(self.d_arguments["--like-run"])
+
             if self.check("ae"):
                 l_ele = self.d_ae[run_id].keys()
             else:
@@ -181,7 +185,6 @@ class BigData(object):
             l_ele = self.l_element_whe_ask
 
         return l_ele
-
 
     def db_get(self, table_name):
 
@@ -292,6 +295,7 @@ class BigData(object):
             mad = sum(map(abs, l_energy)) / len(l_energy)
             d[run_id] = mad
         return d
+
 
 if __name__ == '__main__':
     d_arguments = {"--run_id": [1, 8],

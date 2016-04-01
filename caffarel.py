@@ -5,7 +5,7 @@
 Usage:
   caffarel.py (-h | --help)
   caffarel.py get [e] [ae]
-                  [--run=<id>... | ([--m=<method_name>...]
+                  [--run=<id>... | ([--method=<method_name>...]
                                     [--basis=<basis_name>...]
                                     [--geo=<geometry_name>...]
                                     [--comments=<comments>...])]
