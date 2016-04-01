@@ -97,7 +97,10 @@ class BigData(object):
         return l_ele
 
     def check(self, str_):
-        return str_ in self.d_arguments and self.d_arguments[str_]
+        if str_ in self.d_arguments and self.d_arguments[str_]:
+            return self.d_arguments[str_]
+        else:
+            return False
 
     @property
     @lru_cache(maxsize=1)
@@ -150,45 +153,6 @@ class BigData(object):
 
         return [i[0] for i in cursor.fetchall()]
 
-    @property
-    @lru_cache(maxsize=1)
-    def l_run_id_to_print(self):
-
-        if not self.check("--like-run"):
-            l = self.d_ae.keys()
-        else:
-            run_id = int(self.d_arguments["--like-run"])
-
-            if self.d_arguments["--respect_to"] == "e":
-                l_ref = self.d_e[run_id].keys()
-                d_v = self.d_e.iteritems()
-            elif self.d_arguments["--respect_to"] == "ae":
-                l_ref = self.d_ae[run_id].keys()
-                d_v = self.d_ae.iteritems()
-            else:
-                assert (False), "--respect_to need to be e or ae"
-
-            l = [run_id for run_id, d in d_v if set(l_ref) <= set(d.keys())]
-
-        return l
-
-    @property
-    @lru_cache(maxsize=1)
-    def l_element_to_print(self):
-
-        if self.l_element_whe_ask == ["*"]:
-            l_ele = self.l_element
-        elif self.check("--like-run"):
-            run_id = int(self.d_arguments["--like-run"])
-
-            if self.check("ae"):
-                l_ele = self.d_ae[run_id].keys()
-            else:
-                l_ele = self.e[run_id].keys()
-        else:
-            l_ele = self.l_element_whe_ask
-
-        return l_ele
 
     def db_get(self, table_name):
 
@@ -253,12 +217,29 @@ class BigData(object):
 
         return d
 
+    
+    def dict_subset(self,d):
+
+        d_filter = defaultdict(dict)
+
+        run_id = int(self.d_arguments["--like-run"])
+        k_ref = d[run_id].viewkeys()
+
+        for run_id, d_ in d.items():
+                if k_ref <= d_.viewkeys():
+                    d_filter[run_id] = {k: d_[k] for k in k_ref}
+
+        return d_filter
+
     @property
     @lru_cache(maxsize=1)
     def d_ae(self):
 
         d = self.d_ae_db.copy()
         d.update(self.d_ae_calc)
+
+        if self.check("--like-run") and self.check("--respect_to")=="ae":
+            d = self.dict_subset(d)
 
         return d
 
@@ -275,7 +256,12 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def d_e(self):
 
-        return self.d_e_db
+        d = self.d_e_db
+        
+        if self.check("--like-run") and self.check("--respect_to")=="e":
+            d = self.dict_subset(d)
+
+        return d
 
     @property
     @lru_cache(maxsize=1)

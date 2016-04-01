@@ -145,7 +145,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
         header_unit += ["kcal/mol"]*3
 
     table_body = []
-    for run_id in q.l_run_id_to_print:
+    for run_id in q.l_run_id:
 
         l_info = q.d_run_info[run_id]
         line = [getattr(l_info, field) for field in L_FIELD]
@@ -158,7 +158,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
             d_ae_ref = q.d_ae_ref
             d_ae_deviation = q.d_ae_deviation[run_id]
 
-        for ele in q.l_element_to_print:
+        for ele in q.l_element:
 
             sentinel = False
 
@@ -229,3 +229,31 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
 
     else:
         print table_big.table(row_separator=2)
+
+    plotly(q)
+
+def plotly(q):
+
+    #!/home/razoa/miniconda2/bin/python
+    import sys
+    sys.path.insert(0, '/home/razoa/miniconda2/lib/python2.7/site-packages')
+    
+    import plotly.plotly as py
+    import plotly.graph_objs as go
+
+    data = []
+    for run_id, d in q.d_ae_deviation.iteritems():
+
+        x = []
+        y = []
+        ye = []
+        for e, v in sorted(d.iteritems()):
+            x.append(e)
+            y.append(v.e)
+            ye.append(v.err)
+
+        a = go.Scatter(x=x,y=y,error_y=dict(type='data', array=ye,visible=True),mode='lines+markers')
+
+        data.append(a)
+
+    plot_url = py.plot(data, filename='basic-error-bar')
