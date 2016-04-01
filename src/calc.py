@@ -148,26 +148,40 @@ class BigData(object):
 
     @property
     @lru_cache(maxsize=1)
-    def l_element_to_print(self):
-
-        if self.l_element_whe_ask == ["*"]:
-            l_ele = self.l_element
-        else:
-            l_ele = self.l_element_whe_ask
-
-        return l_ele
-
-    @property
-    @lru_cache(maxsize=1)
     def l_run_id_to_print(self):
 
         if not self.check("--like-run"):
             l = self.d_ae.keys()
         else:
             run_id = int(self.d_arguments["--like-run"])
-            l_mol_ref = self.d_ae[run_id].keys()
-            l = [ run_id  for run_id,d in self.d_ae.iteritems() if set(l_mol_ref) <= set(d.keys())]
+
+            if self.d_arguments["--respect_to"] == "e":
+                l_mol_ref = self.d_e[run_id].keys()
+                l = [ run_id  for run_id,d in self.d_e.iteritems() if set(l_mol_ref) <= set(d.keys())]
+            elif self.d_arguments["--respect_to"] == "ae":
+                l_mol_ref = self.d_ae[run_id].keys()
+                l = [ run_id  for run_id,d in self.d_ae.iteritems() if set(l_mol_ref) <= set(d.keys())]
+            else:
+                assert (False),"--respect_to need to be e or ae"
         return l
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element_to_print(self):
+
+        if self.l_element_whe_ask == ["*"]:
+            l_ele = self.l_element
+        elif self.check("--like-run"):
+            run_id = int(self.d_arguments["--like-run"])
+            if self.check("ae"):
+                l_ele = self.d_ae[run_id].keys()
+            else:
+                l_ele = self.e[run_id].keys()
+        else:
+            l_ele = self.l_element_whe_ask
+
+        return l_ele
+
 
     def db_get(self, table_name):
 

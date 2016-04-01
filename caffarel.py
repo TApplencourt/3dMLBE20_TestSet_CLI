@@ -10,14 +10,15 @@ Usage:
                                     [--geo=<geometry_name>...]
                                     [--comments=<comments>...])]
                   [(  --ele=<element_name>...
-                    | --like-run=<id> 
+                    | --like-run=<id> [ --respect_to=<value>]
                     | --like-sr7
                     | --like-mr13 ) [--with_children]]
                   [--order_by=<column>...]
                   [--ref=<id>]
 
 Options:
-  --ref=<id>    Speed in knots [default: 1].
+  --ref=<id>             Speed in knots [default: 1].
+  --respect_to=<value>   QSkdsjkdsfj [default: ae].  
 
 """
 
