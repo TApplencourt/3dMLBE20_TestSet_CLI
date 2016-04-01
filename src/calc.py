@@ -75,9 +75,9 @@ class BigData(object):
     def get_l_children(self, l_ele):
         return list(set([a for ele in l_ele for a in get_formula(ele)]))
 
-    def db_list_element(self, l_run_id):
+    def db_list_element(self, run_id):
 
-        sql_cmd_where = "".join(cond_sql_or("run_id", l_run_id))
+        sql_cmd_where = "".join(cond_sql_or("run_id", [run_id]))
 
         cursor = c_row.execute("""SELECT ele_name
                                    FROM  run_tab_ele
@@ -87,7 +87,7 @@ class BigData(object):
         l_ele = [i[0] for i in cursor]
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like-run"])
+        assert (l_ele), str_.format(self.d_arguments["--like_run_id"])
 
         return l_ele
 
@@ -105,8 +105,8 @@ class BigData(object):
         elif self.check("--like-mr13"):
             l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
                      "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.check("--like-run"):
-            l_ele = self.db_list_element(self.d_arguments["--like-run"])
+        elif self.check("--like_run_id"):
+            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
         else:
             l_ele = ["*"]
 
@@ -123,7 +123,7 @@ class BigData(object):
 
         if any([self.check("ae"), self.check("list_run"), 
                 not l_ele == ["*"],
-                not self.check("--like-run")]):
+                not self.check("--like_run_id")]):
 
             l_child = self.get_l_children(l_ele)
             l_ele = list(set(l_ele) | set(l_child))
@@ -139,7 +139,7 @@ class BigData(object):
         sql_cmd_where = " AND ".join(l)
 
         cursor = c_row.execute("""SELECT DISTINCT
-                                          ele_name
+                                         ele_name
                                    FROM run_tab_ele
                                    WHERE {0}
                                """.format(sql_cmd_where))
@@ -156,6 +156,18 @@ class BigData(object):
             l_ele = self.l_element_whe_ask
 
         return l_ele
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_run_id_to_print(self):
+
+        if not self.check("--like_run_id"):
+            l = self.d_ae.keys()
+        else:
+            run_id = int(self.d_arguments["--like_run_id"])
+            l_mol_ref = self.d_ae[run_id].keys()
+            l = [ run_id  for run_id,d in self.d_ae.iteritems() if set(l_mol_ref) <= set(d.keys())]
+        return l
 
     def db_get(self, table_name):
 

@@ -145,7 +145,7 @@ def print_energie_recap(q, order_by="run_id",mode=3):
         header_unit += ["kcal/mol"]*3
 
     table_body = []
-    for run_id in q.l_run_id:
+    for run_id in q.l_run_id_to_print:
 
         l_info = q.d_run_info[run_id]
         line = [getattr(l_info, field) for field in L_FIELD]
