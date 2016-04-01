@@ -15,6 +15,7 @@ Usage:
                     | --like-mr13 ) [--with_children]]
                   [--order_by=<column>...]
                   [--ref=<id>]
+                  [--plot (gnuplot|plotly)]
 
 Options:
   --ref=<id>             Speed in knots [default: 1].
@@ -50,5 +51,14 @@ if __name__ == '__main__':
     if not mode:
         mode = 3
 
-    from src.print_util import print_energie_recap
-    print_energie_recap(q,order_by=d_arguments["--order_by"],mode=mode)
+    if d_arguments["plotly"]:
+
+      from src.print_util import print_energie_recap
+      print_energie_recap(q,order_by=d_arguments["--order_by"],mode=mode)
+
+      from src.print_util import print_plotly
+      print_plotly(q)
+
+    elif d_arguments["gnuplot"]:
+      from src.print_util import print_table_gnuplot
+      print_table_gnuplot(q)

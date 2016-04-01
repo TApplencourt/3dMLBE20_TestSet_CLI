@@ -230,16 +230,15 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
     else:
         print table_big.table(row_separator=2)
 
-    plotly(q)
+def print_plotly(q):
 
-def plotly(q):
-
-    #!/home/razoa/miniconda2/bin/python
-    import sys
-    sys.path.insert(0, '/home/razoa/miniconda2/lib/python2.7/site-packages')
-    
-    import plotly.plotly as py
-    import plotly.graph_objs as go
+    try :
+        import plotly.plotly as py
+        from plotly.graph_objs import Layout, ErrorY, XAxis, YAxis, Legend, Scatter, Figure
+    except:
+        print "You need plotly"
+        print "http://plot.ly/python/getting-started"
+        sys.exit(1)
 
     data = []
     for run_id, d in q.d_ae_deviation.iteritems():
@@ -252,8 +251,32 @@ def plotly(q):
             y.append(v.e)
             ye.append(v.err)
 
-        a = go.Scatter(x=x,y=y,error_y=dict(type='data', array=ye,visible=True),mode='lines+markers')
+        name = q.d_run_info[run_id]
+        a = Scatter(name=name,x=x,y=y,error_y=dict(type='data', array=ye,visible=True),mode='lines+markers')
 
         data.append(a)
 
-    plot_url = py.plot(data, filename='basic-error-bar')
+    layout = Layout(yaxis=YAxis(title='$\Delta AE~(kcal/mol)$'),
+                    showlegend=True,
+                    legend=Legend(x=0., y=100)
+                    )
+
+    fig = Figure(data=data, layout=layout)
+    py.image.save_as(fig, filename='AE_diff.png')
+    print "You png file is save at AE_diff.png"
+    py.plot(fig, filename='AE_diff')
+
+def print_table_gnuplot(q):
+  
+    for run_id, d in q.d_ae_deviation.iteritems():
+
+        l_info = q.d_run_info[run_id]
+
+        a = [getattr(l_info, field) for field in L_FIELD]
+        print  ".".join(map(str,a))
+        for e, v in sorted(d.iteritems()):
+            print "{0:<10}  {1}  {2}".format(e,v.e,v.err)
+
+        print "\n\n"
+
+    print "#plot for [IDX=0:1] 'data.dat' i IDX u 2:xticlabel(1)  w lp title columnheader(1)"

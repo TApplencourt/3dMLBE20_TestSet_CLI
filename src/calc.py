@@ -129,9 +129,7 @@ class BigData(object):
 
         l_ele = self.l_element_whe_ask
 
-        if ( self.check("ae") or self.check("list_run") ) and 
-           ( l_ele != ["*"] or self.check("--like-run")):
-
+        if ( self.check("ae") or self.check("list_run") ) and l_ele != ["*"] and not self.check("--like-run"):
             l_child = self.get_l_children(l_ele)
             l_ele = list(set(l_ele) | set(l_child))
 
