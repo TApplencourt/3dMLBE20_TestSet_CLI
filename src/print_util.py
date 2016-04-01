@@ -71,7 +71,7 @@ def order(list_order, header_name, table_body):
 # |_) ._ o ._ _|_   ._ _   _.  _|
 # |   |  | | | |_   | | | (_| (_|
 #
-def print_mad_recap(q, order_by="run_id"):
+def print_mad_recap(q, order_by=["run_id"]):
     """
     Create the table then print the mad
     """
@@ -117,7 +117,7 @@ def print_mad_recap(q, order_by="run_id"):
     table_big = AsciiTable(table_data)
     print table_big.table(row_separator=2)
 
-def print_energie_recap(q, order_by="run_id",mode=3):
+def print_energie_recap(q, order_by=["run_id"],mode=3):
 
     # -#-#-#- #
     # I n i t #

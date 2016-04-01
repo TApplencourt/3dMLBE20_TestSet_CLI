@@ -17,10 +17,9 @@ class BigData(object):
     # _|_ | | |  |_ 
     #
 
-    def __init__(self, d_arguments, run_id_ref=None):
+    def __init__(self, d_arguments):
         self.d_arguments = d_arguments
-        if run_id_ref:
-            self.run_id_ref = int(run_id_ref)
+ 
 
     @property
     @lru_cache(maxsize=1)
@@ -68,6 +67,11 @@ class BigData(object):
 
         return d_run_info
 
+    @property
+    @lru_cache(maxsize=1)
+    def run_id_ref(self):
+        return int(self.d_arguments["--ref"])
+    
     @property
     @lru_cache(maxsize=1)
     def l_run_id(self):

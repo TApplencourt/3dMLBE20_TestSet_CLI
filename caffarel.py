@@ -40,8 +40,7 @@ if __name__ == '__main__':
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
 
     from src.calc import BigData
-    run_id_ref=int(d_arguments["--ref"])
-    q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
+    q = BigData(d_arguments=d_arguments)
 
     mode = 0
     if d_arguments["e"]:
