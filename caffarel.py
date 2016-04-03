@@ -6,23 +6,26 @@ Usage:
   caffarel.py (-h | --help)
   caffarel.py get [e] [ae]
                   [--run=<id>... | ([--method=<method_name>...]
-                                       [--basis=<basis_name>...]
-                                       [--geo=<geometry_name>...]
-                                       [--comments=<comments>...])]
-                  [(  --ele=<element_name>...
-                    | --like_run_id=<run_id>...
+                                    [--basis=<basis_name>...]
+                                    [--geo=<geometry_name>...]
+                                    [--comments=<comments>...])]
+                  [(  --with=<element>...
+                    | --like-run=<id> [ --respect_to=<value>]
                     | --like-sr7
                     | --like-mr13 ) [--with_children]]
                   [--order_by=<column>...]
                   [--ref=<id>]
+                  [--plot (gnuplot|plotly)]
 
 Options:
-  --ref=<id>    Speed in knots [default: 1].
+  --ref=<id>             Speed in knots [default: 1].
+  --respect_to=<value>   QSkdsjkdsfj [default: ae].  
 
 """
 
 version = "0.0.1"
 
+import sys
 #
 # |  o |_  ._ _. ._
 # |_ | |_) | (_| | \/
@@ -36,10 +39,9 @@ except:
 if __name__ == '__main__':
 
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
-    
+
     from src.calc import BigData
-    run_id_ref=int(d_arguments["--ref"])
-    q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
+    q = BigData(d_arguments=d_arguments)
 
     mode = 0
     if d_arguments["e"]:
@@ -51,3 +53,12 @@ if __name__ == '__main__':
 
     from src.print_util import print_energie_recap
     print_energie_recap(q,order_by=d_arguments["--order_by"],mode=mode)
+
+    if d_arguments["plotly"]:
+
+      from src.print_util import print_plotly
+      print_plotly(q)
+
+    elif d_arguments["gnuplot"]:
+      from src.print_util import print_table_gnuplot
+      print_table_gnuplot(q)

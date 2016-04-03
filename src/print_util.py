@@ -71,7 +71,7 @@ def order(list_order, header_name, table_body):
 # |_) ._ o ._ _|_   ._ _   _.  _|
 # |   |  | | | |_   | | | (_| (_|
 #
-def print_mad_recap(q, order_by="run_id"):
+def print_mad_recap(q, order_by=["run_id"]):
     """
     Create the table then print the mad
     """
@@ -117,8 +117,7 @@ def print_mad_recap(q, order_by="run_id"):
     table_big = AsciiTable(table_data)
     print table_big.table(row_separator=2)
 
-
-def print_energie_recap(q, order_by="run_id",mode=3):
+def print_energie_recap(q, order_by=["run_id"],mode=3):
 
     # -#-#-#- #
     # I n i t #
@@ -151,32 +150,21 @@ def print_energie_recap(q, order_by="run_id",mode=3):
         l_info = q.d_run_info[run_id]
         line = [getattr(l_info, field) for field in L_FIELD]
 
-        if mode == 1 or mode==3:
+        if mode in [1,3]:
             d_e = q.d_e[run_id]
-        
-        if mode == 2 or mode == 3:
+
+        if mode in [2,3]:
             d_ae = q.d_ae[run_id]
             d_ae_ref = q.d_ae_ref
             d_ae_deviation = q.d_ae_deviation[run_id]
 
-        if mode == 1:
-            l = d_e.keys()
-        elif mode == 2:
-            l = d_ae.keys()
-        elif mode == 3:
-            l = set(d_e.keys()) | set(d_ae.keys())
-
-        if q.l_element_to_print != ['*']: 
-            s_ele = set(l) & set(q.l_element_to_print)
-        else:
-            s_ele = set(l)
-
-        for ele in s_ele:
+        for ele in q.l_element:
 
             sentinel = False
 
             line_value = []
-            if mode == 1 or mode==3:
+    
+            if mode in [1,3]:
 
                 if ele in d_e:
                     line_value.append(d_e[ele])
@@ -184,7 +172,7 @@ def print_energie_recap(q, order_by="run_id",mode=3):
                 else:
                     line_value.append(None)
 
-            if mode == 2 or mode == 3:
+            if mode in [2,3]:
 
                 if ele in d_ae:
                     line_value.append(d_ae[ele])
@@ -223,9 +211,14 @@ def print_energie_recap(q, order_by="run_id",mode=3):
 
     table_big = AsciiTable(table_data)
 
+
     if all([mode == "Auto", not table_big.ok]) or mode == "Small":
 
-        table_data_top = [i[:len(L_FIELD)] for i in table_data]
+        table_data_top = []
+        for i in table_data:
+            l = i[:len(L_FIELD)]
+            if l not in table_data_top: table_data_top.append(l)
+
         table_data_botom = [i[0:1]+i[len(L_FIELD):] for i in table_data]
 
         table_big = AsciiTable(table_data_top)
@@ -236,3 +229,54 @@ def print_energie_recap(q, order_by="run_id",mode=3):
 
     else:
         print table_big.table(row_separator=2)
+
+def print_plotly(q):
+
+    try :
+        import plotly.plotly as py
+        from plotly.graph_objs import Layout, ErrorY, XAxis, YAxis, Legend, Scatter, Figure
+    except:
+        print "You need plotly"
+        print "http://plot.ly/python/getting-started"
+        sys.exit(1)
+
+    data = []
+    for run_id, d in q.d_ae_deviation.iteritems():
+
+        x = []
+        y = []
+        ye = []
+        for e, v in sorted(d.iteritems()):
+            x.append(e)
+            y.append(v.e)
+            ye.append(v.err)
+
+        name = q.d_run_info[run_id]
+        a = Scatter(name=name,x=x,y=y,error_y=dict(type='data', array=ye,visible=True),mode='lines+markers')
+
+        data.append(a)
+
+    layout = Layout(yaxis=YAxis(title='$\Delta AE~(kcal/mol)$'),
+                    showlegend=True,
+                    legend=Legend(x=0., y=100)
+                    )
+
+    fig = Figure(data=data, layout=layout)
+    py.image.save_as(fig, filename='AE_diff.png')
+    print "You png file is save at AE_diff.png"
+    py.plot(fig, filename='AE_diff')
+
+def print_table_gnuplot(q):
+  
+    for run_id, d in q.d_ae_deviation.iteritems():
+
+        l_info = q.d_run_info[run_id]
+
+        a = [getattr(l_info, field) for field in L_FIELD]
+        print  ".".join(map(str,a))
+        for e, v in sorted(d.iteritems()):
+            print "{0:<10}  {1}  {2}".format(e,v.e,v.err)
+
+        print "\n\n"
+
+    print "#plot for [IDX=0:1] 'data.dat' i IDX u 2:xticlabel(1)  w lp title columnheader(1)"

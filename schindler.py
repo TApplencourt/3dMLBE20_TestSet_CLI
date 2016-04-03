@@ -4,16 +4,16 @@
 
 Usage:
   schindler.py (-h | --help)
-  schindler.py list_run [--run_id=<id>... | ([--method=<method_name>...]
-                                             [--basis=<basis_name>...]
-                                             [--geo=<geometry_name>...]
-                                             [--comments=<comments>...])]
-                        [(  --ele=<element_name>...
-                          | --like_run_id=<run_id>...
-                          | --like-sr7
-                          | --like-mr13 ) [--with_children]]
-                        [--order_by=<column>...]
-                  [--ref=<id>]
+  schindler.py list_run [--run=<id>... | ([--method=<method_name>...]
+                                    [--basis=<basis_name>...]
+                                    [--geo=<geometry_name>...]
+                                    [--comments=<comments>...])]
+                         [(  --with=<element>...
+                           | --like-run=<id> [ --respect_to=<value>]
+                           | --like-sr7
+                           | --like-mr13 ) [--with_children]]
+                           [--order_by=<column>...]
+                           [--ref=<id>]
 
 Options:
   --ref=<id>    Speed in knots [default: 1].
@@ -38,8 +38,7 @@ if __name__ == '__main__':
     d_arguments = docopt(__doc__, version='G2 Api ' + version)
     from src.calc import BigData
 
-    run_id_ref=int(d_arguments["--ref"])
-    q = BigData(d_arguments=d_arguments,run_id_ref=run_id_ref)
+    q = BigData(d_arguments=d_arguments)
 
     from src.print_util import print_mad_recap
-    print_mad_recap(q, order_by=d_arguments["--order_by"])
+    print_mad_recap(q,order_by=d_arguments["--order_by"])

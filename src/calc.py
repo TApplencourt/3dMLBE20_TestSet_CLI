@@ -9,6 +9,7 @@ from src.__init__ import get_formula
 
 from src.SQL_util import c, c_row
 
+
 class BigData(object):
 
     # ___           
@@ -16,10 +17,9 @@ class BigData(object):
     # _|_ | | |  |_ 
     #
 
-    def __init__(self, d_arguments, run_id_ref=None):
+    def __init__(self, d_arguments):
         self.d_arguments = d_arguments
-        if run_id_ref:
-            self.run_id_ref = int(run_id_ref)
+ 
 
     @property
     @lru_cache(maxsize=1)
@@ -69,17 +69,20 @@ class BigData(object):
 
     @property
     @lru_cache(maxsize=1)
+    def run_id_ref(self):
+        return int(self.d_arguments["--ref"])
+    
+    @property
+    @lru_cache(maxsize=1)
     def l_run_id(self):
         return self.d_run_info.keys()
 
     def get_l_children(self, l_ele):
         return list(set([a for ele in l_ele for a in get_formula(ele)]))
 
-    @property
-    @lru_cache(maxsize=1)
-    def db_list_element(self, l_run_id):
+    def db_list_element(self, run_id):
 
-        sql_cmd_where = "".join(cond_sql_or("run_id", l_run_id))
+        sql_cmd_where = "".join(cond_sql_or("run_id", [run_id]))
 
         cursor = c_row.execute("""SELECT ele_name
                                    FROM  run_tab_ele
@@ -89,45 +92,46 @@ class BigData(object):
         l_ele = [i[0] for i in cursor]
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like_run_id"])
+        assert (l_ele), str_.format(self.d_arguments["--like-run"])
 
         return l_ele
 
     def check(self, str_):
-        return str_ in self.d_arguments and self.d_arguments[str_]
+        if str_ in self.d_arguments and self.d_arguments[str_]:
+            return self.d_arguments[str_]
+        else:
+            return False
 
     @property
     @lru_cache(maxsize=1)
-    def l_element_whe_want(self):
+    def l_element_whe_ask(self):
 
-        l_ele = self.l_element_to_print
-
-        if any([self.check("ae"), self.check("list_run"), not l_ele == ["*"],
-                not self.check("--like_run_id")]):
-
-            l_child = self.get_l_children(l_ele)
-            l_ele = list(set(l_ele) | set(l_child))
-
-        return l_ele
-
-    @property
-    @lru_cache(maxsize=1)
-    def l_element_to_print(self):
-
-        if self.check("--ele"):
-            l_ele = self.d_arguments["--ele"]
+        if self.check("--with"):
+            l_ele = self.d_arguments["--with"]
         elif self.check("--like-sr7"):
             l_ele = ["MnCl", "ZnCl", "FeCl", "CrCl", "ZnS", "ZnH", "CuCl"]
         elif self.check("--like-mr13"):
             l_ele = ["ZnO", "NiCl", "TiCl", "CuH", "VO", "VCl", "MnS", "CrO",
                      "CoH", "CoCl", "VH", "FeH", "CrH"]
-        elif self.check("--like_run_id"):
-            l_ele = self.db_list_element(self.d_arguments["--like_run_id"])
+        elif self.check("--like-run"):
+            l_ele = self.db_list_element(self.d_arguments["--like-run"])
         else:
             l_ele = ["*"]
 
         if self.check("--with_children") and not l_ele == ["*"]:
             l_ele += self.get_l_children(l_ele)
+
+        return l_ele
+
+    @property
+    @lru_cache(maxsize=1)
+    def l_element_whe_want(self):
+
+        l_ele = self.l_element_whe_ask
+
+        if ( self.check("ae") or self.check("list_run") ) and l_ele != ["*"] and not self.check("--like-run"):
+            l_child = self.get_l_children(l_ele)
+            l_ele = list(set(l_ele) | set(l_child))
 
         return l_ele
 
@@ -140,12 +144,13 @@ class BigData(object):
         sql_cmd_where = " AND ".join(l)
 
         cursor = c_row.execute("""SELECT DISTINCT
-                                          ele_name
+                                         ele_name
                                    FROM run_tab_ele
                                    WHERE {0}
                                """.format(sql_cmd_where))
 
         return [i[0] for i in cursor.fetchall()]
+
 
     def db_get(self, table_name):
 
@@ -210,12 +215,29 @@ class BigData(object):
 
         return d
 
+    
+    def dict_subset(self,d):
+
+        d_filter = defaultdict(dict)
+
+        run_id = int(self.d_arguments["--like-run"])
+        k_ref = d[run_id].viewkeys()
+
+        for run_id, d_ in d.items():
+                if k_ref <= d_.viewkeys():
+                    d_filter[run_id] = {k: d_[k] for k in k_ref}
+
+        return d_filter
+
     @property
     @lru_cache(maxsize=1)
     def d_ae(self):
 
         d = self.d_ae_db.copy()
         d.update(self.d_ae_calc)
+
+        if self.check("--like-run") and self.check("--respect_to")=="ae":
+            d = self.dict_subset(d)
 
         return d
 
@@ -232,7 +254,12 @@ class BigData(object):
     @lru_cache(maxsize=1)
     def d_e(self):
 
-        return self.d_e_db
+        d = self.d_e_db
+        
+        if self.check("--like-run") and self.check("--respect_to")=="e":
+            d = self.dict_subset(d)
+
+        return d
 
     @property
     @lru_cache(maxsize=1)
@@ -257,9 +284,10 @@ class BigData(object):
             d[run_id] = mad
         return d
 
+
 if __name__ == '__main__':
     d_arguments = {"--run_id": [1, 8],
-                   "--ele": ["MnCl"],
+                   "--with": ["MnCl"],
                    "--with_children": True}
 
     q = BigData(d_arguments=d_arguments, run_id_ref="1")
