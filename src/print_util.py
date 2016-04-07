@@ -93,10 +93,13 @@ def print_mad_recap(q, order_by=["run_id"]):
     # -#-#-#- #
 
     #Now add the real mad
-    for run_id, mad in q.d_mad.iteritems():
+    for run_id, l_info in q.d_run_info.iteritems():
 
-        l_info = q.d_run_info[run_id]
-
+        try:
+          mad = q.d_mad[run_id]
+        except KeyError:
+          mad = 0.
+ 
         line = [getattr(l_info, field) for field in L_FIELD] + [mad]
         table_body.append(line)
 
