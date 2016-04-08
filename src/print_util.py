@@ -85,8 +85,8 @@ def print_mad_recap(q, order_by=["run_id"]):
     # H e a d e r #
     # -#-#-#-#-#- #
 
-    header_name = L_FIELD + ["mad"]
-    header_unit = [DEFAULT_CHARACTER] * len(L_FIELD) + ["kcal/mol"]
+    header_name = L_FIELD + ["mad", "rmsad"]
+    header_unit = [DEFAULT_CHARACTER] * len(L_FIELD) + ["kcal/mol", "kcal/mol"]
 
     # -#-#-#- #
     # B o d y #
@@ -97,10 +97,12 @@ def print_mad_recap(q, order_by=["run_id"]):
 
         try:
           mad = q.d_mad[run_id]
+          rmsad = q.d_rmsad[run_id]
         except KeyError:
           mad = 0.
+          rmsad = 0.
  
-        line = [getattr(l_info, field) for field in L_FIELD] + [mad]
+        line = [getattr(l_info, field) for field in L_FIELD] + [mad, rmsad]
         table_body.append(line)
 
     # -#-#-#-#-#- #

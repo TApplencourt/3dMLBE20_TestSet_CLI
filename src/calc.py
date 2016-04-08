@@ -279,9 +279,20 @@ class BigData(object):
     def d_mad(self):
         d = {}
         for run_id, d_ele in self.d_ae_deviation.items():
-            l_energy = d_ele.values()
-            mad = sum(map(abs, l_energy)) / len(l_energy)
+            l_ae_deviation = d_ele.values()
+            mad = sum(map(abs, l_ae_deviation)) / len(l_ae_deviation)
             d[run_id] = mad
+        return d
+
+    @property
+    @lru_cache(maxsize=1)
+    def d_rmsad(self):
+        d = {}
+        d_mad = self.d_mad
+        for run_id, d_ele in self.d_ae_deviation.items():
+            l_ae_deviation = d_ele.values()
+            rmsad= sum([ ((abs(ae_deviation) - d_mad[run_id]).e)**2 for ae_deviation in l_ae_deviation]) / (len(l_ae_deviation)-1)
+            d[run_id] = rmsad
         return d
 
 
