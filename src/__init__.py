@@ -84,3 +84,7 @@ def check_argument(d_arguments, str_):
         return d_arguments[str_]
     else:
         return False
+
+import hashlib
+def run_info_2_hash(o):
+    return int(hashlib.sha1(o).hexdigest(), 16) % (10 ** 8)

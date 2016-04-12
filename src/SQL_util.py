@@ -17,6 +17,8 @@ except:
 
 from src.__init__ import get_formula
 from src.__init__ import cond_sql_or
+from src.__init__ import run_info_2_hash
+
 #  _
 # /  ._ _   _. _|_  _     _     ._ _  _  ._
 # \_ | (/_ (_|  |_ (/_   (_ |_| | _> (_) |
@@ -130,8 +132,10 @@ def add_new_run(method, basis, geo, comments):
     basis_id = get_basis_id(basis)
     geo_id = get_geo_id(geo)
 
-    c.execute("""INSERT INTO run_tab(method_id,basis_id,geo_id,comments)
-        VALUES (?,?,?,?)""", [method_id, basis_id, geo_id, comments])
+    run_id = run_info_2_hash("".join([method,basis,geo,comments]))
+
+    c.execute("""INSERT INTO run_tab(run_id,method_id,basis_id,geo_id,comments)
+        VALUES (?,?,?,?,?)""", [run_id,method_id, basis_id, geo_id, comments])
     conn.commit()
 
 

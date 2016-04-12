@@ -89,7 +89,7 @@ CREATE TABLE geo_tab(
             );
 INSERT INTO "geo_tab" VALUES(1,NULL,NULL,'Experiment',NULL);
 CREATE TABLE run_tab(
-         run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+         run_id INTEGER PRIMARY KEY,
          geo_id INTEGER,
       method_id INTEGER,
        basis_id INTEGER,
