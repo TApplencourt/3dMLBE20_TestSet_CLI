@@ -235,8 +235,8 @@ class BigData(object):
 
     @lazy_property
     def d_e(self):
-        if set(["--like-run", "--respect_to"]) <= self.d_arguments.viewkeys(
-        ) and self.d_arguments["--respect_to"] == "e":
+        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.viewkeys()) \
+        and self.d_arguments["--respect_to"] == "e":
             d = self.dict_subset_of_ref(self.d_e_db)
         else:
             d = self.d_e_db
@@ -277,8 +277,8 @@ class BigData(object):
         d_ae_full = self.d_ae_db.copy()
         d_ae_full.update(self.d_ae_calc)
 
-        if set(["--like-run", "--respect_to"]) <= self.d_arguments.viewkeys(
-        ) and self.d_arguments["--respect_to"] == "ae":
+        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.viewkeys()) \
+        and self.d_arguments["--respect_to"] == "ae":
             d = self.dict_subset_of_ref(d_ae_full)
         else:
             d = d_ae_full
