@@ -37,13 +37,10 @@ conn.row_factory = sqlite3.Row
 c_row = conn.cursor()
 
 
-#  _____      _
-# |  __ \    | |
-# | |  \/ ___| |_
-# | | __ / _ \ __|
-# | |_\ \  __/ |_
-#  \____/\___|\__|
-#
+#  __        
+# /__  _ _|_ 
+# \_| (/_ |_ 
+#            
 def get_coord(mol, atom, geo):
 
     mol_id = get_mol_id(mol)
@@ -82,18 +79,25 @@ def get_geo_id(name):
 
 def get_run_id(method, basis, geo, comments):
     # Only work if method,basis,geo already exist
-    method_id = get_method_id(method)
-    basis_id = get_basis_id(basis)
-    geo_id = get_geo_id(geo)
 
-    c.execute("""SELECT run_id FROM run_tab
-                WHERE method_id =(?) AND
-                      basis_id = (?) AND
-                      geo_id = (?)   AND
-                      comments =(?)""", [method_id, basis_id, geo_id, comments
-                                         ])
+    c.execute("""SELECT run_id FROM run_tab_expended
+                WHERE method =(?) AND
+                       basis =(?) AND
+                         geo =(?) AND
+                    comments =(?)""", [method, basis, geo, comments])
 
     return c.fetchone()[0]
+
+
+def get_run_info(run_id):
+    c.execute("""SELECT method,
+                        basis,
+                        geo,
+                        comments 
+                   FROM run_tab_expended
+                  WHERE run_id = (?)""", [run_id])
+
+    return list(c.fetchall()[0])
 
 
 def list_geo(where_cond='(1)'):
@@ -116,13 +120,10 @@ def list_ele(where_cond='(1)'):
     return [i[0] for i in c.fetchall()]
 
 
-#   ___      _     _
-#  / _ \    | |   | |
-# / /_\ \ __| | __| |
-# |  _  |/ _` |/ _` |
-# | | | | (_| | (_| |
-# \_| |_/\__,_|\__,_|
-#
+#              
+#  /\   _|  _| 
+# /--\ (_| (_| 
+#              
 def add_new_run(method, basis, geo, comments):
     # Only work id method,basis,geo already exist
     method_id = get_method_id(method)
@@ -155,6 +156,32 @@ def add_energy(run_id, name, e, err, overwrite=False, commit=False):
                   VALUES (?,?,?,?)"""
 
     c.execute(cmd, [run_id, name, e, err])
+
+    if commit:
+        conn.commit()
+
+#                         
+# | | ._   _|  _. _|_  _  
+# |_| |_) (_| (_|  |_ (/_ 
+#     |
+
+def update_run_id(run_id_new,run_id_old, commit=False):
+
+    for tab in "run_tab so_tab ae_tab e_tab".split():
+        cmd = """UPDATE {0}
+                    SET run_id=?
+                  WHERE run_id=?""".format(tab)
+        c.execute(cmd, [run_id_new,run_id_old])
+
+    if commit:
+        conn.commit()
+
+def delete_run_id(run_id, commit=False):
+
+    for tab in "run_tab so_tab ae_tab e_tab".split():
+        cmd = """DELETE FROM {0}
+                WHERE run_id=?""".format(tab)
+        c.execute(cmd, [run_id])
 
     if commit:
         conn.commit()

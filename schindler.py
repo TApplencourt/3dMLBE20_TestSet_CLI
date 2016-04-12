@@ -16,7 +16,7 @@ Usage:
                            [--ref=<id>]
 
 Options:
-  --ref=<id>    Speed in knots [default: 1].
+  --ref=<id>    Speed in knots [default: 66474780].
 
 """
 #
@@ -24,6 +24,8 @@ Options:
 # |_ | |_) | (_| | \/
 #                  /
 from lib.docopt import docopt
+from src.calc import BigData
+from src.print_util import print_mad_recap
 
 #                
 # |\/|  _. o ._  
@@ -32,9 +34,6 @@ from lib.docopt import docopt
 if __name__ == '__main__':
     
     d_arguments = docopt(__doc__)
-    from src.calc import BigData
-
     q = BigData(d_arguments=d_arguments)
 
-    from src.print_util import print_mad_recap
     print_mad_recap(q,order_by=d_arguments["--order_by"])

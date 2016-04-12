@@ -6,9 +6,9 @@ from src.__init__ import zipdic
 from src.__init__ import cond_sql_or
 from src.__init__ import get_formula
 
-from irpy import lazy_property
-from irpy import lazy_property_mutable
-from irpy import lazy_property_leaves
+from lib.irpy import lazy_property
+from lib.irpy import lazy_property_mutable
+from lib.irpy import lazy_property_leaves
 
 from src.SQL_util import c, c_row
 
@@ -115,12 +115,6 @@ class BigData(object):
         assert (l_ele), str_.format(self.d_arguments["--like-run"])
 
         return l_ele
-
-    def check_argument(self, str_):
-        if str_ in self.d_arguments:
-            return self.d_arguments[str_]
-        else:
-            return False
 
     @lazy_property
     def l_element_whe_ask(self):

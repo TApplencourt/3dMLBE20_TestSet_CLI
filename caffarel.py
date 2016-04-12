@@ -18,7 +18,7 @@ Usage:
                   [--plot (gnuplot|plotly)]
 
 Options:
-  --ref=<id>             Speed in knots [default: 1].
+  --ref=<id>             Speed in knots [default: 66474780].
   --respect_to=<value>   QSkdsjkdsfj [default: ae].  
 
 """

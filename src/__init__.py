@@ -78,3 +78,9 @@ else:
 
 config = ConfigParser.ConfigParser()
 config.read(usr_name)
+
+def check_argument(d_arguments, str_):
+    if str_ in d_arguments:
+        return d_arguments[str_]
+    else:
+        return False
