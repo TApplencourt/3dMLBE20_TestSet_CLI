@@ -39,3 +39,36 @@ def get_formula(ele):
     l_formula_flaten = [a for a, nb in l_formula_tuple for i in range(nb)]
 
     return l_formula_flaten
+
+import shutil
+import os
+
+def overwrite():
+    r = raw_input(
+        "New default config file. If will overwrite youre. Continue? [Y/N]")
+
+    if r.lower() == "y":
+        shutil.copyfile(default_name,usr_name)
+    elif r.lower() == "n":
+        os.system("touch {0}".format(usr_name))
+    else:
+        overwrite()
+
+import ConfigParser
+head = os.path.dirname(__file__)
+
+default_name = os.path.join(head,"..","config","config.cfg.default")
+usr_name = os.path.join(head,"..","config.cfg")
+
+
+if not os.path.isfile(usr_name):
+    shutil.copyfile(default_name,usr_name)
+else:
+    default_time = os.path.getmtime(default_name)
+    usr_time = os.path.getmtime(usr_name)
+
+    if default_time > usr_time:
+        overwrite()
+
+config = ConfigParser.ConfigParser()
+config.read(usr_name)

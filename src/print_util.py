@@ -6,7 +6,7 @@
 # \_ (_) | | (/_ (_  |_ | (_) | |
 #
 from collections import defaultdict
-from config_management import config
+from src.__init__ import config
 from lib.terminaltables import AsciiTable
 
 import sys
