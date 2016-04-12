@@ -36,6 +36,7 @@ c = conn.cursor()
 conn.row_factory = sqlite3.Row
 c_row = conn.cursor()
 
+
 #  _____      _
 # |  __ \    | |
 # | |  \/ ___| |_
@@ -89,9 +90,11 @@ def get_run_id(method, basis, geo, comments):
                 WHERE method_id =(?) AND
                       basis_id = (?) AND
                       geo_id = (?)   AND
-                      comments =(?)""", [method_id, basis_id, geo_id, comments])
+                      comments =(?)""", [method_id, basis_id, geo_id, comments
+                                         ])
 
     return c.fetchone()[0]
+
 
 def list_geo(where_cond='(1)'):
     c.execute('''SELECT DISTINCT geo_tab.name
@@ -140,11 +143,13 @@ def add_or_get_run(method, basis, geo, comments):
     finally:
         return get_run_id(method, basis, geo, comments)
 
+
 def add_energy(run_id, name, e, err, overwrite=False, commit=False):
 
     if overwrite:
         cmd = """INSERT OR REPLACE INTO e_tab(run_id,ele_name,energy,err)
                   VALUES (?,?,?,?)"""
+
     else:
         cmd = """INSERT INTO e_tab(run_id,ele_name,energy,err)
                   VALUES (?,?,?,?)"""
@@ -153,4 +158,3 @@ def add_energy(run_id, name, e, err, overwrite=False, commit=False):
 
     if commit:
         conn.commit()
-

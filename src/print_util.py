@@ -21,8 +21,6 @@ L_FIELD = config.items("Display")[0][1].split()
 DEFAULT_CHARACTER = ""
 
 
-
-
 #  _
 # |_ _  ._ ._ _   _. _|_
 # | (_) |  | | | (_|  |_
