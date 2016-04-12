@@ -1,5 +1,6 @@
 [Format_dict]
 mad:     {:>5.2f}
+rmsad:   {:>9.2f}
 e:       {:>9.3f}
 ae:      {:>7.3f}
 ae_ref:  {:>7.3f}
