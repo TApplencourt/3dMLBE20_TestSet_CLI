@@ -6,9 +6,14 @@ from src.__init__ import zipdic
 from src.__init__ import cond_sql_or
 from src.__init__ import get_formula
 
-from lib.irpy import lazy_property
-from lib.irpy import lazy_property_mutable
-from lib.irpy import lazy_property_leaves
+try:
+    from irpy import lazy_property
+    from irpy import lazy_property_mutable
+    from irpy import lazy_property_leaves
+except ImportError:
+    from lib.irpy import lazy_property
+    from lib.irpy import lazy_property_mutable
+    from lib.irpy import lazy_property_leaves
 
 from src.SQL_util import c, c_row
 

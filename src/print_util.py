@@ -291,3 +291,16 @@ def print_table_gnuplot(q):
         print "\n\n"
 
     print "#plot for [IDX=0:1] 'data.dat' i IDX u 2:xticlabel(1)  w lp title columnheader(1)"
+
+def print_table_vladimir(q):
+
+    for run_id, d in q.d_e.iteritems():
+
+        print "#run_id {0}".format(run_id)
+        for name, v in sorted(d.iteritems()):
+
+            if v.err:
+                print "{0:<10}  {1}  {2}".format(name, v.e, v.err)
+            else:
+                print "{0:<10}  {1}".format(name, v.e)
+        print "\n\n"
