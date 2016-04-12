@@ -6,8 +6,8 @@
 # \_ (_) | | (/_ (_  |_ | (_) | |
 #
 from collections import defaultdict
-
-from src.Requirement_util import config
+from config_management import config
+from lib.terminaltables import AsciiTable
 
 import sys
 
@@ -20,7 +20,7 @@ L_FIELD = config.items("Display")[0][1].split()
 
 DEFAULT_CHARACTER = ""
 
-from src.terminaltables import AsciiTable
+
 
 
 #  _

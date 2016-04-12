@@ -19,23 +19,19 @@ Options:
   --ref=<id>    Speed in knots [default: 1].
 
 """
-
-version = "0.0.1"
-
 #
 # |  o |_  ._ _. ._
 # |_ | |_) | (_| | \/
 #                  /
-try:
-    from src.docopt import docopt
-except:
-    print "File in misc is corupted. Git reset may cure the diseases"
-    sys.exit(1)
+from lib.docopt import docopt
 
-
+#                
+# |\/|  _. o ._  
+# |  | (_| | | | 
+#                
 if __name__ == '__main__':
     
-    d_arguments = docopt(__doc__, version='G2 Api ' + version)
+    d_arguments = docopt(__doc__)
     from src.calc import BigData
 
     q = BigData(d_arguments=d_arguments)

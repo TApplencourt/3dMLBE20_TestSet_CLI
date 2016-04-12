@@ -5,9 +5,14 @@ import sys
 
 try:
     import sqlite3
-    from sqlit import connect4git
 except:
     print "Sorry, you need sqlite3"
+    sys.exit(1)
+
+try:
+    from lib.sqlit import connect4git
+except:
+    print "Sorry, you need the sqlit librairy"
     sys.exit(1)
 
 from src.__init__ import get_formula
