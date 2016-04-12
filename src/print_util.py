@@ -16,7 +16,7 @@ D_FORMAT = defaultdict(lambda: '{0}')
 for name, value in config.items("Format_dict"):
     D_FORMAT[name] = value
 
-L_FIELD= config.items("Display")[0][1].split()
+L_FIELD = config.items("Display")[0][1].split()
 
 DEFAULT_CHARACTER = ""
 
@@ -32,8 +32,8 @@ def format_table(l_header, table_body):
     For all value in all ligne, format the table
     """
 
-    table_formated = [[D_FORMAT[h].format(v) if v else DEFAULT_CHARACTER for h, v in zip(l_header,l)] 
-                      for l in table_body]
+    table_formated = [[D_FORMAT[h].format(v) if v else DEFAULT_CHARACTER
+                       for h, v in zip(l_header, l)] for l in table_body]
 
     return table_formated
 
@@ -96,12 +96,12 @@ def print_mad_recap(q, order_by=["run_id"]):
     for run_id, l_info in q.d_run_info.iteritems():
 
         try:
-          mad = q.d_mad[run_id]
-          rmsad = q.d_rmsad[run_id]
+            mad = q.d_mad[run_id]
+            rmsad = q.d_rmsad[run_id]
         except KeyError:
-          mad = 0.
-          rmsad = 0.
- 
+            mad = 0.
+            rmsad = 0.
+
         line = [getattr(l_info, field) for field in L_FIELD] + [mad, rmsad]
         table_body.append(line)
 
@@ -122,7 +122,8 @@ def print_mad_recap(q, order_by=["run_id"]):
     table_big = AsciiTable(table_data)
     print table_big.table(row_separator=2)
 
-def print_energie_recap(q, order_by=["run_id"],mode=3):
+
+def print_energie_recap(q, order_by=["run_id"], mode=3):
 
     # -#-#-#- #
     # I n i t #
@@ -137,7 +138,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
     # -#-#-#-#-#- #
 
     header_name = L_FIELD + ["ele"]
-    header_unit = [DEFAULT_CHARACTER] * (len(L_FIELD)+1)
+    header_unit = [DEFAULT_CHARACTER] * (len(L_FIELD) + 1)
 
     # -#- #
     # A E #
@@ -147,7 +148,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
         header_unit += ["hartree"]
     if mode == 2 or mode == 3:
         header_name += "ae ae_ref ae_diff".split()
-        header_unit += ["kcal/mol"]*3
+        header_unit += ["kcal/mol"] * 3
 
     table_body = []
     for run_id in q.l_run_id:
@@ -155,10 +156,10 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
         l_info = q.d_run_info[run_id]
         line = [getattr(l_info, field) for field in L_FIELD]
 
-        if mode in [1,3]:
+        if mode in [1, 3]:
             d_e = q.d_e[run_id]
 
-        if mode in [2,3]:
+        if mode in [2, 3]:
             d_ae = q.d_ae[run_id]
             d_ae_ref = q.d_ae_ref
             d_ae_deviation = q.d_ae_deviation[run_id]
@@ -168,8 +169,8 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
             sentinel = False
 
             line_value = []
-    
-            if mode in [1,3]:
+
+            if mode in [1, 3]:
 
                 if ele in d_e:
                     line_value.append(d_e[ele])
@@ -177,7 +178,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
                 else:
                     line_value.append(None)
 
-            if mode in [2,3]:
+            if mode in [2, 3]:
 
                 if ele in d_ae:
                     line_value.append(d_ae[ele])
@@ -196,7 +197,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
                     line_value.append(None)
 
             if sentinel:
-                table_body.append(line+[ele]+line_value)
+                table_body.append(line + [ele] + line_value)
 
     # -#-#-#-#-#- #
     # F o r m a t #
@@ -216,7 +217,6 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
 
     table_big = AsciiTable(table_data)
 
-
     if all([mode == "Auto", not table_big.ok]) or mode == "Small":
 
         table_data_top = []
@@ -224,7 +224,7 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
             l = i[:len(L_FIELD)]
             if l not in table_data_top: table_data_top.append(l)
 
-        table_data_botom = [i[0:1]+i[len(L_FIELD):] for i in table_data]
+        table_data_botom = [i[0:1] + i[len(L_FIELD):] for i in table_data]
 
         table_big = AsciiTable(table_data_top)
         print table_big.table(row_separator=2)
@@ -235,9 +235,10 @@ def print_energie_recap(q, order_by=["run_id"],mode=3):
     else:
         print table_big.table(row_separator=2)
 
+
 def print_plotly(q):
 
-    try :
+    try:
         import plotly.plotly as py
         from plotly.graph_objs import Layout, ErrorY, XAxis, YAxis, Legend, Scatter, Figure
     except:
@@ -257,30 +258,37 @@ def print_plotly(q):
             ye.append(v.err)
 
         name = q.d_run_info[run_id]
-        a = Scatter(name=name,x=x,y=y,error_y=dict(type='data', array=ye,visible=True),mode='lines+markers')
+        a = Scatter(name=name,
+                    x=x,
+                    y=y,
+                    error_y=dict(type='data',
+                                 array=ye,
+                                 visible=True),
+                    mode='lines+markers')
 
         data.append(a)
 
     layout = Layout(yaxis=YAxis(title='$\Delta AE~(kcal/mol)$'),
                     showlegend=True,
-                    legend=Legend(x=0., y=100)
-                    )
+                    legend=Legend(x=0.,
+                                  y=100))
 
     fig = Figure(data=data, layout=layout)
     py.image.save_as(fig, filename='AE_diff.png')
     print "You png file is save at AE_diff.png"
     py.plot(fig, filename='AE_diff')
 
+
 def print_table_gnuplot(q):
-  
+
     for run_id, d in q.d_ae_deviation.iteritems():
 
         l_info = q.d_run_info[run_id]
 
         a = [getattr(l_info, field) for field in L_FIELD]
-        print  ".".join(map(str,a))
+        print ".".join(map(str, a))
         for e, v in sorted(d.iteritems()):
-            print "{0:<10}  {1}  {2}".format(e,v.e,v.err)
+            print "{0:<10}  {1}  {2}".format(e, v.e, v.err)
 
         print "\n\n"
 
