@@ -32,17 +32,14 @@ version = "0.0.1"
 
 import sys
 
-try:
-    from src.docopt import docopt
-    from src.__init__ import cond_sql_or
-    from src.__init__ import get_formula
+from lib.docopt import docopt
 
-    from src.SQL_util import c, c_row
-    from src.SQL_util import list_geo, list_ele, get_coord
+from src.__init__ import cond_sql_or
+from src.__init__ import get_formula
 
-except:
-    print "File in misc is corupted. Git reset may cure the disease."
-    sys.exit(1)
+from src.SQL_util import c, c_row
+from src.SQL_util import list_geo, list_ele, get_coord
+
 
 
 
