@@ -101,8 +101,10 @@ class Vladimir(object):
             #Get Line
             l_line = [line for line in f.read().split("\n") if line]
 
+
         #Now handle '#'
-        l_wo_comm = [line for line.split('#')[0] in l_line if line]
+        l_wo_comm = [line.split('#')[0] for line in l_line if line]
+
         #Now finaly split
         return [line.split() for line in l_wo_comm]
 
