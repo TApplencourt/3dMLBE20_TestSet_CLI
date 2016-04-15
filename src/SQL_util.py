@@ -57,27 +57,45 @@ def get_coord(mol, atom, geo):
 
 def get_mol_id(name):
     # Only work if name already exist
-    c.execute("SELECT id FROM ele_tab WHERE name=?", [name])
-    return c.fetchone()[0]
+    c.execute("SELECT id FROM ele_tab WHERE name=? COLLATE NOCASE", [name])
+    try:
+        id_ = c.fetchone()[0]
+    except TypeError:
+        raise AttributeError, "No mol_id for {0}".format(name)
+    else:
+        return id_
 
 
 def get_method_id(name):
     # Only work if name already exist
-    c.execute("SELECT method_id FROM method_tab WHERE name=?", [name])
-    return c.fetchone()[0]
+    c.execute("SELECT method_id FROM method_tab WHERE name=? COLLATE NOCASE", [name])
+    try:
+        id_ = c.fetchone()[0]
+    except TypeError:
+        raise AttributeError, "No method_id for {0}".format(name)
+    else:
+        return id_
 
 
 def get_basis_id(name):
     # Only work if name already exist
-    c.execute("SELECT basis_id FROM basis_tab WHERE name=?", [name])
-    return c.fetchone()[0]
-
+    c.execute("SELECT basis_id FROM basis_tab WHERE name=? COLLATE NOCASE", [name])
+    try:
+        id_ = c.fetchone()[0]
+    except TypeError:
+        raise AttributeError, "No basis_id for {0}".format(name)
+    else:
+        return id_
 
 def get_geo_id(name):
     # Only work if name already exist
-    c.execute("SELECT geo_id FROM geo_tab WHERE name=?", [name])
-    return c.fetchone()[0]
-
+    c.execute("SELECT geo_id FROM geo_tab WHERE name=? COLLATE NOCASE", [name])
+    try:
+        id_ = c.fetchone()[0]
+    except TypeError:
+        raise AttributeError, "No geo_id for {0}".format(name)
+    else:
+        return id_
 
 def get_run_id(method, basis, geo, comments):
     # Only work if method,basis,geo already exist
@@ -88,8 +106,12 @@ def get_run_id(method, basis, geo, comments):
                          geo =(?) AND
                     comments =(?)""", [method, basis, geo, comments])
 
-    return c.fetchone()[0]
-
+    try:
+        id_ = c.fetchone()[0]
+    except TypeError:
+        raise AttributeError, "No run id for {0}".format([method, basis, geo, comments])
+    else:
+        return id_
 
 def get_run_info(run_id):
     c.execute("""SELECT method,
@@ -131,7 +153,6 @@ def add_new_run(method, basis, geo, comments):
     method_id = get_method_id(method)
     basis_id = get_basis_id(basis)
     geo_id = get_geo_id(geo)
-
     run_id = run_info_2_hash("".join([method,basis,geo,comments]))
 
     c.execute("""INSERT INTO run_tab(run_id,method_id,basis_id,geo_id,comments)
@@ -142,12 +163,11 @@ def add_new_run(method, basis, geo, comments):
 def add_or_get_run(method, basis, geo, comments):
 
     try:
-        return get_run_id(method, basis, geo, comments)
-    except TypeError:
-        add_new_run(method, basis, geo, comments)
-    finally:
-        return get_run_id(method, basis, geo, comments)
+        run_id = get_run_id(method, basis, geo, comments)
+    except AttributeError:
+        run_id = add_new_run(method, basis, geo, comments)
 
+    return run_id
 
 def add_energy(run_id, name, e, err, overwrite=False, commit=False):
 
