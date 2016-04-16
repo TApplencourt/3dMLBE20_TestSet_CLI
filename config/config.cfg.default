@@ -2,7 +2,7 @@
 run_id:  {:>8}
 mad:     {:>5.2f}
 rmsad:   {:>9.2f}
-e:       {:>9.3f}
+e:       {:>9.6f}
 ae:      {:>7.3f}
 ae_ref:  {:>7.3f}
 ae_diff: {:>10.3f}
