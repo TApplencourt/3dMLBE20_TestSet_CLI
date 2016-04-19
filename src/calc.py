@@ -5,7 +5,7 @@ from src.__init__ import zipdic, cond_sql_or, get_formula
 from lib.irpy import irpy, irp_debug 
 from src.SQL_util import c, c_row
 
-@irp_debug.debug
+
 class BigData(object):
 
     # ___           
