@@ -2,9 +2,8 @@
 from collections import namedtuple, defaultdict
 from src.__init__ import zipdic, cond_sql_or, get_formula
 
-from lib.irpy import irpy, irp_debug 
+from lib.irpy import irpy 
 from src.SQL_util import c, c_row
-
 
 class BigData(object):
 
@@ -18,11 +17,10 @@ class BigData(object):
         #Sanitize
         self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
 
-#  _            ___      _    
-# |_)     ._     |  ._ _|_ _  
-# | \ |_| | |   _|_ | | | (_) 
-#
-
+    #  _            ___      _    
+    # |_)     ._     |  ._ _|_ _  
+    # | \ |_| | |   _|_ | | | (_) 
+    #
     @irpy.lazy_property
     def d_arg_to_db(self):
         d = {
@@ -105,7 +103,7 @@ class BigData(object):
         l_ele = {i[0] for i in cursor}
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like-run"])
+        assert (l_ele), str_.format(run_id)
 
         return l_ele
 
