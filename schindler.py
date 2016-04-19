@@ -36,4 +36,10 @@ if __name__ == '__main__':
     d_arguments = docopt(__doc__)
     q = BigData(d_arguments=d_arguments)
 
-    print_mad_recap(q,order_by=d_arguments["--order_by"])
+
+    if d_arguments["--order_by"]:
+      order_by = d_arguments["--order_by"]
+    else:
+      order_by = ["mad"]
+
+    print_mad_recap(q,order_by=order_by)
