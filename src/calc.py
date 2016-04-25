@@ -1,22 +1,9 @@
 #!/usr/bin/python
-from collections import namedtuple
-from collections import defaultdict
+from collections import namedtuple, defaultdict
+from src.__init__ import zipdic, cond_sql_or, get_formula
 
-from src.__init__ import zipdic
-from src.__init__ import cond_sql_or
-from src.__init__ import get_formula
-
-try:
-    from irpy import lazy_property
-    from irpy import lazy_property_mutable
-    from irpy import lazy_property_leaves
-except ImportError:
-    from lib.irpy import lazy_property
-    from lib.irpy import lazy_property_mutable
-    from lib.irpy import lazy_property_leaves
-
+from lib.irpy import irpy 
 from src.SQL_util import c, c_row
-
 
 class BigData(object):
 
@@ -25,17 +12,16 @@ class BigData(object):
     # _|_ | | |  |_ 
     #
 
-    @lazy_property_leaves(immutables=["d_arguments"])
+#    @irpy.lazy_property_leaves(immutables=["d_arguments"])
     def __init__(self, d_arguments):
         #Sanitize
         self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
 
-#  _            ___      _    
-# |_)     ._     |  ._ _|_ _  
-# | \ |_| | |   _|_ | | | (_) 
-#
-
-    @lazy_property
+    #  _            ___      _    
+    # |_)     ._     |  ._ _|_ _  
+    # | \ |_| | |   _|_ | | | (_) 
+    #
+    @irpy.lazy_property
     def d_arg_to_db(self):
         d = {
             "--run": "run_id",
@@ -46,7 +32,7 @@ class BigData(object):
         }
         return d
 
-    @lazy_property
+    @irpy.lazy_property
     def d_run_info(self):
         "Return a dict in adecation with d_arguments"
 
@@ -84,11 +70,11 @@ class BigData(object):
 
         return d_run_info
 
-    @lazy_property
+    @irpy.lazy_property
     def run_id_ref(self):
         return int(self.d_arguments["--ref"])
 
-    @lazy_property
+    @irpy.lazy_property
     def l_run_id(self):
         return self.d_run_info.keys()
 
@@ -117,11 +103,11 @@ class BigData(object):
         l_ele = {i[0] for i in cursor}
 
         str_ = "No element in run_id: {0}"
-        assert (l_ele), str_.format(self.d_arguments["--like-run"])
+        assert (l_ele), str_.format(run_id)
 
         return l_ele
 
-    @lazy_property
+    @irpy.lazy_property
     def l_element_whe_ask(self):
         "From d_arguments return the list of element we whant"
         if "--with" in self.d_arguments:
@@ -145,7 +131,7 @@ class BigData(object):
 
         return l_ele
 
-    @lazy_property
+    @irpy.lazy_property
     def l_element_whe_want(self):
         "If we ask for ae, or for list_run we need the children"
 
@@ -157,7 +143,7 @@ class BigData(object):
 
         return l_ele
 
-    @lazy_property
+    @irpy.lazy_property
     def l_element(self):
         """
         Get the element from the databse
@@ -229,11 +215,11 @@ class BigData(object):
     # E n e r g i e #
     # -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- #
 
-    @lazy_property
+    @irpy.lazy_property
     def d_e_db(self):
         return self.db_get("e_tab")
 
-    @lazy_property
+    @irpy.lazy_property
     def d_e(self):
         if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.viewkeys()) \
         and self.d_arguments["--respect_to"] == "e":
@@ -247,11 +233,11 @@ class BigData(object):
     # A t o m i s a t i o n _ E n e r g i e #
     # -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- #
 
-    @lazy_property
+    @irpy.lazy_property
     def d_ae_db(self):
         return self.db_get("ae_tab")
 
-    @lazy_property
+    @irpy.lazy_property
     def d_ae_calc(self):
 
         d = defaultdict(dict)
@@ -271,7 +257,7 @@ class BigData(object):
                     d[run_id][ele] = ae
         return d
 
-    @lazy_property
+    @irpy.lazy_property
     def d_ae(self):
 
         d_ae_full = self.d_ae_db.copy()
@@ -285,14 +271,14 @@ class BigData(object):
 
         return d
 
-    @lazy_property
+    @irpy.lazy_property
     def d_ae_ref(self):
         d_arguments = {"--run_id": [self.run_id_ref], "--with_children": True}
         q = BigData(d_arguments=d_arguments)
 
         return q.d_ae[self.run_id_ref]
 
-    @lazy_property
+    @irpy.lazy_property
     def d_ae_deviation(self):
         d = defaultdict(dict)
         for run_id, d_ae_run_id in self.d_ae.items():
@@ -302,7 +288,7 @@ class BigData(object):
 
         return d
 
-    @lazy_property
+    @irpy.lazy_property
     def d_mad(self):
         d = {}
         for run_id, d_ele in self.d_ae_deviation.items():
@@ -311,12 +297,16 @@ class BigData(object):
             d[run_id] = mad
         return d
 
-    @lazy_property
+    @irpy.lazy_property
     def d_rmsad(self):
         d = {}
         for run_id, d_ele, mad in zipdic(self.d_ae_deviation, self.d_mad):
             l_ae_dev = d_ele.values()
-            rmsad = sum((abs(ae_dev) - mad).e ** 2
-                        for ae_dev in l_ae_dev) / (len(l_ae_dev) - 1)
+            try:
+                rmsad = sum((abs(ae_dev) - mad).e ** 2
+                            for ae_dev in l_ae_dev) / (len(l_ae_dev) - 1)
+            except ZeroDivisionError:
+                rmsad = 0
+
             d[run_id] = rmsad
         return d

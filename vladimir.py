@@ -54,10 +54,8 @@ except:
     raise
     print "File in misc is corupted. Git reset may cure the diseases"
     sys.exit(1)
-
-from lib.irpy import lazy_property
-from lib.irpy import lazy_property_mutable
-from lib.irpy import lazy_property_leaves
+    
+from lib.irpy import irpy
 
 
 class Vladimir(object):
@@ -67,16 +65,16 @@ class Vladimir(object):
     # _|_ | | |  |_ 
     #
 
-    @lazy_property_leaves(immutables=["d_arguments"])
+    @irpy.lazy_property_leaves(immutables=["d_arguments"])
     def __init__(self, d_arguments):
         #Sanitize
         self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
 
-    @lazy_property
+    @irpy.lazy_property
     def overwrite(self):
         return check_argument(self.d_arguments, "--overwrite")
 
-    @lazy_property
+    @irpy.lazy_property
     def run_id(self):
         if "--run_id" in self.d_arguments:
             run_id = self.d_arguments["--run_id"]
@@ -87,7 +85,7 @@ class Vladimir(object):
 
         return run_id
 
-    @lazy_property
+    @irpy.lazy_property
     def run_id_pt2(self):
         l = get_run_info(self.run_id)
         l[-1] += " (+PT2)"
@@ -95,7 +93,7 @@ class Vladimir(object):
 
         return run_id
 
-    @lazy_property
+    @irpy.lazy_property
     def ll_data(self):
         with open(self.d_arguments["--path"], "r") as f:
             #Get Line
@@ -124,7 +122,7 @@ class Vladimir(object):
 
         for name, energy, pt2 in self.ll_data:
 
-            ept2 = float(e) + float(pt2)
+            ept2 = float(energy) + float(pt2)
 
             for run_id, e in ([self.run_id, energy], [self.run_id_pt2, ept2]):
 
