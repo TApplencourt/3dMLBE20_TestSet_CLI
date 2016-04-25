@@ -12,7 +12,7 @@ class BigData(object):
     # _|_ | | |  |_ 
     #
 
-    @irpy.lazy_property_leaves(immutables=["d_arguments"])
+#    @irpy.lazy_property_leaves(immutables=["d_arguments"])
     def __init__(self, d_arguments):
         #Sanitize
         self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
@@ -302,7 +302,11 @@ class BigData(object):
         d = {}
         for run_id, d_ele, mad in zipdic(self.d_ae_deviation, self.d_mad):
             l_ae_dev = d_ele.values()
-            rmsad = sum((abs(ae_dev) - mad).e ** 2
-                        for ae_dev in l_ae_dev) / (len(l_ae_dev) - 1)
+            try:
+                rmsad = sum((abs(ae_dev) - mad).e ** 2
+                            for ae_dev in l_ae_dev) / (len(l_ae_dev) - 1)
+            except ZeroDivisionError:
+                rmsad = 0
+
             d[run_id] = rmsad
         return d

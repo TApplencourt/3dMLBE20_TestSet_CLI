@@ -159,6 +159,7 @@ def add_new_run(method, basis, geo, comments):
         VALUES (?,?,?,?,?)""", [run_id,method_id, basis_id, geo_id, comments])
     conn.commit()
 
+    return run_id
 
 def add_or_get_run(method, basis, geo, comments):
 
