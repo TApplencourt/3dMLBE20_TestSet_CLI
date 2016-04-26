@@ -102,12 +102,12 @@ class Vladimir(object):
 
     @irpy.lazy_property
     def data_tuple_double(self):
-      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.]+)\s*$', re.MULTILINE)
+      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.eE-]+)\s*$', re.MULTILINE)
       return re.findall(p,self.data)
 
     @irpy.lazy_property
     def data_tuple_triple(self):
-      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s*$', re.MULTILINE)
+      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.eE-]+)\s+(-?[\d.eE-]+)\s*$', re.MULTILINE)
       return re.findall(p,self.data)
 
     def add_simple_energy(self):
@@ -123,7 +123,7 @@ class Vladimir(object):
         conn.commit()
 
     def add_cipsi(self):
-        print self.data_tuple_triple
+
         for name, energy, pt2 in self.data_tuple_triple:
 
             ept2 = float(energy) + float(pt2)
