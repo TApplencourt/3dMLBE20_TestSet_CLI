@@ -101,13 +101,22 @@ class Vladimir(object):
             return f.read()
 
     @irpy.lazy_property
+    def regex_scientific_notation(self):
+      "http://stackoverflow.com/questions/638565/parsing-scientific-notation-sensibly"
+      return '[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?'
+    
+    @irpy.lazy_property
     def data_tuple_double(self):
-      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.eE-]+)\s*$', re.MULTILINE)
+      str_ = ur'^\s*(\w+)\s+({0})\s*$'.format(self.regex_scientific_notation)
+
+      p = re.compile(str_, re.MULTILINE)
       return re.findall(p,self.data)
 
     @irpy.lazy_property
     def data_tuple_triple(self):
-      p = re.compile(ur'^\s*(\w+)\s+(-?[\d.eE-]+)\s+(-?[\d.eE-]+)\s*$', re.MULTILINE)
+      str_ = ur'^\s*(\w+)\s+({0})\s+({0})\s*$'.format(self.regex_scientific_notation)
+
+      p = re.compile(str_, re.MULTILINE)
       return re.findall(p,self.data)
 
     def add_simple_energy(self):
