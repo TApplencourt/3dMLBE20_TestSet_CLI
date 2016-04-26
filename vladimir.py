@@ -43,6 +43,7 @@ CH3                            -7.4164102812      0.0003798976
 version = "0.0.2"
 
 import sys
+import re
 
 try:
     from lib.docopt import docopt
@@ -94,21 +95,24 @@ class Vladimir(object):
         return run_id
 
     @irpy.lazy_property
-    def ll_data(self):
+    def data(self):
         with open(self.d_arguments["--path"], "r") as f:
             #Get Line
-            l_line = [line for line in f.read().split("\n") if line]
+            return f.read()
 
+    @irpy.lazy_property
+    def data_tuple_double(self):
+      p = re.compile(ur'^\s*?(\w+)\s+([\d.]+)\s*$', re.MULTILINE)
+      return re.findall(p,self.data)
 
-        #Now handle '#'
-        l_wo_comm = [line.split('#')[0] for line in l_line if line]
-
-        #Now finaly split
-        return [line.split() for line in l_wo_comm]
+    @irpy.lazy_property
+    def data_tuple_triple(self):
+      p = re.compile(ur'^\s*?(\w+)\s+([\d.]+)\s+([\d.]+)\s*$', re.MULTILINE)
+      return re.findall(p,self.data)
 
     def add_simple_energy(self):
 
-        for name, energy in self.ll_data:
+        for name, energy in self.data_tuple_double:
 
             add_energy(run_id=self.run_id,
                        name=name,
@@ -120,7 +124,7 @@ class Vladimir(object):
 
     def add_cipsi(self):
 
-        for name, energy, pt2 in self.ll_data:
+        for name, energy, pt2 in self.data_tuple_triple:
 
             ept2 = float(energy) + float(pt2)
 
@@ -136,7 +140,7 @@ class Vladimir(object):
 
     def add_cipsi_epp(self):
 
-        for name, energy, ept2 in self.ll_data:
+        for name, energy, ept2 in self.data_tuple_triple:
 
             for run_id, e in ([self.run_id, energy], [self.run_id_pt2, ept2]):
 
@@ -150,7 +154,7 @@ class Vladimir(object):
 
     def add_qmc(self):
 
-        for name, energy, err in self.ll_data:
+        for name, energy, err in self.data_tuple_triple:
 
             add_energy(run_id=self.run_id,
                        name=name,
