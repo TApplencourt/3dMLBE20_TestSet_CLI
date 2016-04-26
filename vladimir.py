@@ -8,10 +8,10 @@ Usage:
   vladimir.py put_in --path=<path>
                      (--method=<method_name> --basis=<basis_name>
                       --geo=<geometry_name> --comment=<comment>|
-                      --run_id=<id>)
+                      --run=<id>)
                      (--simple | --cipsi [--epp] | --qmc)
                      [--overwrite]
-  vladimir.py remove --run_id=<id>
+  vladimir.py remove --run=<id>
 
 Example of input file for a simple run (molecule,energy):
 
@@ -77,8 +77,8 @@ class Vladimir(object):
 
     @irpy.lazy_property
     def run_id(self):
-        if "--run_id" in self.d_arguments:
-            run_id = self.d_arguments["--run_id"]
+        if "--run" in self.d_arguments:
+            run_id = self.d_arguments["--run"]
         else:
             l = [arguments[i]
                  for i in ["--method", "--basis", "--geo", "--comment"]]
@@ -180,4 +180,4 @@ if __name__ == '__main__':
         elif arguments["--qmc"]:
             v.add_qmc()
     elif arguments["remove"]:
-        delete_run_id(run_id=arguments["--run_id"], commit=True)
+        delete_run_id(run_id=arguments["--run"], commit=True)

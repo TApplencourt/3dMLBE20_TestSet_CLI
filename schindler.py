@@ -16,7 +16,7 @@ Usage:
                            [--ref=<id>]
 
 Options:
-  --ref=<id>    Speed in knots [default: 66474780].
+  --ref=<id>    Id of reference for the run [default: 66474780].
 
 """
 #
