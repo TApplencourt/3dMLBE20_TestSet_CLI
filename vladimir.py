@@ -56,7 +56,7 @@ except:
     print "File in misc is corupted. Git reset may cure the diseases"
     sys.exit(1)
     
-from lib.irpy import irpy
+import lib.irpy as irpy
 
 
 class Vladimir(object):

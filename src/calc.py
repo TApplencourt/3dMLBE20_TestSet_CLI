@@ -2,7 +2,7 @@
 from collections import namedtuple, defaultdict
 from src.__init__ import zipdic, cond_sql_or, get_formula
 
-from lib.irpy import irpy 
+import lib.irpy as irpy
 from src.SQL_util import c, c_row
 
 class BigData(object):
