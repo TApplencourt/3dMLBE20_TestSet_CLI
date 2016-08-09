@@ -274,7 +274,8 @@ def print_plotly(q):
     fig = Figure(data=data, layout=layout)
     py.image.save_as(fig, filename='AE_diff.png')
     print "Your png file is save at AE_diff.png"
-    py.plot(fig, filename='AE_diff')
+    url = py.plot(fig, filename='AE_diff',auto_open=False)
+    print url
 
 
 def print_table_gnuplot(q):
