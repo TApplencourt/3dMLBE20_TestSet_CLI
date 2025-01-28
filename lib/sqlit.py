@@ -6,7 +6,7 @@ import sys
 try:
     import sqlite3
 except:
-    print "Sorry, you need sqlite3"
+    print("Sorry, you need sqlite3")
     sys.exit(1)
 
 

@@ -6,13 +6,13 @@ import sys
 try:
     import sqlite3
 except:
-    print "Sorry, you need sqlite3"
+    print("Sorry, you need sqlite3")
     sys.exit(1)
 
 try:
     from lib.sqlit import connect4git
 except:
-    print "Sorry, you need the sqlit librairy"
+    print("Sorry, you need the sqlit librairy")
     sys.exit(1)
 
 from src.__init__ import get_formula
@@ -30,7 +30,7 @@ db_path = os.path.abspath(os.path.dirname(__file__) + "/../db/3dMLBE20.db")
 try:
     conn = connect4git(dump_path, db_path)
 except sqlite3.Error as e:
-    print "{0} is not a SQLite3 database file".fomat(db_path)
+    print("{0} is not a SQLite3 database file".fomat(db_path))
     sys.exit(1)
 
 c = conn.cursor()
@@ -61,7 +61,7 @@ def get_mol_id(name):
     try:
         id_ = c.fetchone()[0]
     except TypeError:
-        raise AttributeError, "No mol_id for {0}".format(name)
+        raise AttributeError("No mol_id for {0}".format(name))
     else:
         return id_
 
@@ -72,7 +72,7 @@ def get_method_id(name):
     try:
         id_ = c.fetchone()[0]
     except TypeError:
-        raise AttributeError, "No method_id for {0}".format(name)
+        raise AttributeError("No method_id for {0}".format(name))
     else:
         return id_
 
@@ -83,7 +83,7 @@ def get_basis_id(name):
     try:
         id_ = c.fetchone()[0]
     except TypeError:
-        raise AttributeError, "No basis_id for {0}".format(name)
+        raise AttributeError("No basis_id for {0}".format(name))
     else:
         return id_
 
@@ -93,7 +93,7 @@ def get_geo_id(name):
     try:
         id_ = c.fetchone()[0]
     except TypeError:
-        raise AttributeError, "No geo_id for {0}".format(name)
+        raise AttributeError("No geo_id for {0}".format(name))
     else:
         return id_
 
@@ -109,7 +109,7 @@ def get_run_id(method, basis, geo, comments):
     try:
         id_ = c.fetchone()[0]
     except TypeError:
-        raise AttributeError, "No run id for {0}".format([method, basis, geo, comments])
+        raise AttributeError("No run id for {0}".format([method, basis, geo, comments]))
     else:
         return id_
 

@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
         r = list_geo(where_cond=where)
         assert r, "No geometries for {0} elements".format(arguments["--ele"])
-        print ", ".join(r)
+        print(", ".join(r))
 
     elif arguments["list_elements"]:
 
@@ -161,18 +161,18 @@ if __name__ == '__main__':
             r = list_ele(where_cond=where)
             assert r, "No element for {0} geometries".format(arguments["--geo"])
     
-            print ", ".join(r)
+            print(", ".join(r))
         elif arguments['--run']:
 
             from src.calc import BigData
             q = BigData(d_arguments=arguments)
-            print ", ".join(q.l_element)
+            print(", ".join(q.l_element))
 
     elif arguments["get_multiplicity"]:
         l_ele = arguments["--ele"]
         l = [str(get_multiplicity(ele)) for ele in l_ele]
 
-        print " ".join(l)
+        print(" ".join(l))
 
     elif arguments["get_g09"] or arguments["get_xyz"]:
 
@@ -210,12 +210,12 @@ if __name__ == '__main__':
                 name = "{0}.{1}".format("_".join(l_geo+l_ele),g.ext)
                 path = os.path.join("/tmp/",name)
 
-            print path
+            print(path)
             with open(path, 'w') as f:
                 f.write(str_ + "\n")
 
         else:
-            print str_
+            print(str_)
 
     elif arguments["get_target_pt2_max"]:
 
@@ -251,7 +251,7 @@ if __name__ == '__main__':
 
         if arguments["--quality_factor"]:
             if not 0. <= float(arguments["--quality_factor"]) <= 1.:
-                print "0. < quality factor < 1. "
+                print("0. < quality factor < 1. ")
                 sys.exit(1)
             else:
                 quality_factor = float(arguments["--quality_factor"])
@@ -262,10 +262,10 @@ if __name__ == '__main__':
         # |_) ._ o ._ _|_
         # |   |  | | | |_
         #
-        print "{0:<7} {1:<8} {2:>15}  quality_factor: {3}".format("Ele","Target_PT2","Target_Energie",quality_factor)
+        print("{0:<7} {1:<8} {2:>15}  quality_factor: {3}".format("Ele","Target_PT2","Target_Energie",quality_factor))
         str_ = "{0:<7} {1:<8.4f} {2:>17.4f}"
 
-        for ele, target_pt2 in d_target_pt2.iteritems():
+        for ele, target_pt2 in d_target_pt2.items():
             ept2 = target_pt2 * (1 - quality_factor)
             efci = q.d_e[fci_id][ele]
-            print str_.format(ele, ept2, efci-ept2)
+            print(str_.format(ele, ept2, efci-ept2))

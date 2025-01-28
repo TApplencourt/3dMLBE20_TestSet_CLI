@@ -55,8 +55,8 @@ def order(list_order, header_name, table_body):
         try:
             index = header_name.index(arg)
         except ValueError:
-            print "Error. Cannot order_by {0}".format(list_order)
-            print "Choose in:", header_name
+            print("Error. Cannot order_by {0}".format(list_order))
+            print("Choose in:", header_name)
             sys.exit(1)
         else:
             table_body = sorted(table_body,
@@ -91,7 +91,7 @@ def print_mad_recap(q, order_by=["run_id"]):
     # -#-#-#- #
 
     #Now add the real mad
-    for run_id, l_info in q.d_run_info.iteritems():
+    for run_id, l_info in q.d_run_info.items():
 
         try:
             mad = q.d_mad[run_id]
@@ -114,11 +114,11 @@ def print_mad_recap(q, order_by=["run_id"]):
     # B i g  Ta b l e #
     # -#-#-#-#-#-#-#- #
 
-    table_body = [map(str, i) for i in table_body]
+    table_body = [list(map(str, i)) for i in table_body]
     table_data = [header_name] + [header_unit] + table_body
 
     table_big = AsciiTable(table_data)
-    print table_big.table(row_separator=2)
+    print(table_big.table(row_separator=2))
 
 
 def print_energie_recap(q, order_by=["run_id"], mode=3):
@@ -208,7 +208,7 @@ def print_energie_recap(q, order_by=["run_id"], mode=3):
     # B i g  Ta b l e #
     # -#-#-#-#-#-#-#- #
 
-    table_body = [map(str, i) for i in table_body]
+    table_body = [list(map(str, i)) for i in table_body]
     table_data = [header_name] + [header_unit] + table_body
 
     mode = config.get("Size", "mode")
@@ -225,13 +225,13 @@ def print_energie_recap(q, order_by=["run_id"], mode=3):
         table_data_botom = [i[0:1] + i[len(L_FIELD):] for i in table_data]
 
         table_big = AsciiTable(table_data_top)
-        print table_big.table(row_separator=2)
+        print(table_big.table(row_separator=2))
 
         table_big = AsciiTable(table_data_botom)
-        print table_big.table(row_separator=2)
+        print(table_big.table(row_separator=2))
 
     else:
-        print table_big.table(row_separator=2)
+        print(table_big.table(row_separator=2))
 
 
 def print_plotly(q):
@@ -240,17 +240,17 @@ def print_plotly(q):
         import plotly.plotly as py
         from plotly.graph_objs import Layout, ErrorY, XAxis, YAxis, Legend, Scatter, Figure
     except:
-        print "You need plotly"
-        print "http://plot.ly/python/getting-started"
+        print("You need plotly")
+        print("http://plot.ly/python/getting-started")
         sys.exit(1)
 
     data = []
-    for run_id, d in q.d_ae_deviation.iteritems():
+    for run_id, d in q.d_ae_deviation.items():
 
         x = []
         y = []
         ye = []
-        for e, v in sorted(d.iteritems()):
+        for e, v in sorted(d.items()):
             x.append(e)
             y.append(v.e)
             ye.append(v.err)
@@ -273,35 +273,35 @@ def print_plotly(q):
 
     fig = Figure(data=data, layout=layout)
     py.image.save_as(fig, filename='AE_diff.png')
-    print "Your png file is save at AE_diff.png"
+    print("Your png file is save at AE_diff.png")
     url = py.plot(fig, filename='AE_diff',auto_open=False)
-    print url
+    print(url)
 
 
 def print_table_gnuplot(q):
 
-    for run_id, d in q.d_ae_deviation.iteritems():
+    for run_id, d in q.d_ae_deviation.items():
 
         l_info = q.d_run_info[run_id]
 
         a = [getattr(l_info, field) for field in L_FIELD]
-        print ".".join(map(str, a))
-        for e, v in sorted(d.iteritems()):
-            print "{0:<10}  {1}  {2}".format(e, v.e, v.err)
+        print(".".join(map(str, a)))
+        for e, v in sorted(d.items()):
+            print("{0:<10}  {1}  {2}".format(e, v.e, v.err))
 
-        print "\n\n"
+        print("\n\n")
 
-    print "#plot for [IDX=0:1] 'data.dat' i IDX u 2:xticlabel(1)  w lp title columnheader(1)"
+    print("#plot for [IDX=0:1] 'data.dat' i IDX u 2:xticlabel(1)  w lp title columnheader(1)")
 
 def print_table_vladimir(q):
 
-    for run_id, d in q.d_e.iteritems():
+    for run_id, d in q.d_e.items():
 
-        print "#run_id {0}".format(run_id)
-        for name, v in sorted(d.iteritems()):
+        print("#run_id {0}".format(run_id))
+        for name, v in sorted(d.items()):
 
             if v.err:
-                print "{0:<10}  {1}  {2}".format(name, v.e, v.err)
+                print("{0:<10}  {1}  {2}".format(name, v.e, v.err))
             else:
-                print "{0:<10}  {1}".format(name, v.e)
-        print "\n\n"
+                print("{0:<10}  {1}".format(name, v.e))
+        print("\n\n")

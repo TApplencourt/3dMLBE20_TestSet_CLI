@@ -15,7 +15,7 @@ class BigData(object):
 #    @irpy.lazy_property_leaves(immutables=["d_arguments"])
     def __init__(self, d_arguments):
         #Sanitize
-        self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
+        self.d_arguments = {k: v for k, v in d_arguments.items() if v}
 
     #  _            ___      _    
     # |_)     ._     |  ._ _|_ _  
@@ -39,7 +39,7 @@ class BigData(object):
         d_arg2db = self.d_arg_to_db
         d_arg2value = self.d_arguments
 
-        l = d_arg2db.viewkeys() & d_arg2value.viewkeys()
+        l = d_arg2db.keys() & d_arg2value.keys()
         if l:
             l_cond_filter = [cond_sql_or(table_name=d_arg2db[k],
                                          l_value=d_arg2value[k]) for k in l]
@@ -76,7 +76,7 @@ class BigData(object):
 
     @irpy.lazy_property
     def l_run_id(self):
-        return self.d_run_info.keys()
+        return list(self.d_run_info.keys())
 
     # _                                                                     
     # |_ |  _  ._ _   _  ._ _|_   ._ _   _. ._   _.  _   _  ._ _   _  ._ _|_ 
@@ -137,7 +137,7 @@ class BigData(object):
 
         l_ele = self.l_element_whe_ask
 
-        ae_or_list_run = set(["ae", "list_run"]) & self.d_arguments.viewkeys()
+        ae_or_list_run = set(["ae", "list_run"]) & self.d_arguments.keys()
         if ae_or_list_run and not "--like-run" in self.d_arguments:
             l_ele |= self.get_l_children(l_ele)
 
@@ -203,10 +203,10 @@ class BigData(object):
         d_filter = defaultdict(dict)
 
         run_id = int(self.d_arguments["--like-run"])
-        k_ref = d[run_id].viewkeys()
+        k_ref = d[run_id].keys()
 
-        for run_id, d_ in d.items():
-            if k_ref <= d_.viewkeys():
+        for run_id, d_ in list(d.items()):
+            if k_ref <= d_.keys():
                 d_filter[run_id] = {k: d_[k] for k in k_ref}
 
         return d_filter
@@ -221,7 +221,7 @@ class BigData(object):
 
     @irpy.lazy_property
     def d_e(self):
-        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.viewkeys()) \
+        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.keys()) \
         and self.d_arguments["--respect_to"] == "e":
             d = self.dict_subset_of_ref(self.d_e_db)
         else:
@@ -242,8 +242,8 @@ class BigData(object):
 
         d = defaultdict(dict)
 
-        for run_id, d_mol in self.d_e.items():
-            for ele, energy in d_mol.items():
+        for run_id, d_mol in list(self.d_e.items()):
+            for ele, energy in list(d_mol.items()):
 
                 if len(get_formula(ele)) == 1:
                     continue
@@ -263,7 +263,7 @@ class BigData(object):
         d_ae_full = self.d_ae_db.copy()
         d_ae_full.update(self.d_ae_calc)
 
-        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.viewkeys()) \
+        if set(["--like-run", "--respect_to"]) <= set(self.d_arguments.keys()) \
         and self.d_arguments["--respect_to"] == "ae":
             d = self.dict_subset_of_ref(d_ae_full)
         else:
@@ -281,7 +281,7 @@ class BigData(object):
     @irpy.lazy_property
     def d_ae_deviation(self):
         d = defaultdict(dict)
-        for run_id, d_ae_run_id in self.d_ae.items():
+        for run_id, d_ae_run_id in list(self.d_ae.items()):
 
             for ele, energy, energy_ref in zipdic(d_ae_run_id, self.d_ae_ref):
                 d[run_id][ele] = energy - energy_ref
@@ -291,8 +291,8 @@ class BigData(object):
     @irpy.lazy_property
     def d_mad(self):
         d = {}
-        for run_id, d_ele in self.d_ae_deviation.items():
-            l_ae_dev = d_ele.values()
+        for run_id, d_ele in list(self.d_ae_deviation.items()):
+            l_ae_dev = list(d_ele.values())
             mad = sum(map(abs, l_ae_dev)) / len(l_ae_dev)
             d[run_id] = mad
         return d
@@ -301,7 +301,7 @@ class BigData(object):
     def d_rmsad(self):
         d = {}
         for run_id, d_ele, mad in zipdic(self.d_ae_deviation, self.d_mad):
-            l_ae_dev = d_ele.values()
+            l_ae_dev = list(d_ele.values())
             try:
                 rmsad = sum((abs(ae_dev) - mad).e ** 2
                             for ae_dev in l_ae_dev) / (len(l_ae_dev) - 1)

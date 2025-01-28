@@ -401,7 +401,7 @@ class AsciiTable(object):
             pseudo_row_re = re.compile(
                 '({0})'.format(
                     '|'.join(
-                        pseudo_row_key.keys())))
+                        list(pseudo_row_key.keys()))))
             substitute = lambda s: pseudo_row_re.sub(
                 lambda x: pseudo_row_key[
                     x.string[
@@ -421,7 +421,7 @@ class AsciiTable(object):
             final_table_data.append(row)
 
         # Build table body.
-        indexes = range(len(padded_table_data))
+        indexes = list(range(len(padded_table_data)))
         for i in indexes:
             row = _convert_row(
                 padded_table_data[i],

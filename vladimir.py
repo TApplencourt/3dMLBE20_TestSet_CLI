@@ -53,7 +53,7 @@ try:
     from src.__init__ import check_argument
 except:
     raise
-    print "File in misc is corupted. Git reset may cure the diseases"
+    print("File in misc is corupted. Git reset may cure the diseases")
     sys.exit(1)
     
 import lib.irpy as irpy
@@ -69,7 +69,7 @@ class Vladimir(object):
     @irpy.lazy_property_leaves(immutables=["d_arguments"])
     def __init__(self, d_arguments):
         #Sanitize
-        self.d_arguments = {k: v for k, v in d_arguments.iteritems() if v}
+        self.d_arguments = {k: v for k, v in d_arguments.items() if v}
 
     @irpy.lazy_property
     def overwrite(self):
@@ -107,14 +107,14 @@ class Vladimir(object):
     
     @irpy.lazy_property
     def data_tuple_double(self):
-      str_ = ur'^\s*(\w+)\s+({0})\s*$'.format(self.regex_scientific_notation)
+      str_ = r'^\s*(\w+)\s+({0})\s*$'.format(self.regex_scientific_notation)
 
       p = re.compile(str_, re.MULTILINE)
       return re.findall(p,self.data)
 
     @irpy.lazy_property
     def data_tuple_triple(self):
-      str_ = ur'^\s*(\w+)\s+({0})\s+({0})\s*$'.format(self.regex_scientific_notation)
+      str_ = r'^\s*(\w+)\s+({0})\s+({0})\s*$'.format(self.regex_scientific_notation)
 
       p = re.compile(str_, re.MULTILINE)
       return re.findall(p,self.data)

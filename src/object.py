@@ -14,7 +14,7 @@ class Energie(object):
         assert err >= 0
         self.err = float(err)
 
-    p = re.compile(ur'^(0*)\.(0*(\d{1,2}))')
+    p = re.compile(r'^(0*)\.(0*(\d{1,2}))')
 
     def __str__(self):
         # Hypothese : Will display in flat form.
@@ -125,7 +125,7 @@ class Energie(object):
         if float(format_err) >= 1.:
             return "{0}+/-{1}".format(format_e, format_err)
         else:
-            p2 = re.compile(ur'^0*\.0*(\d*)')
+            p2 = re.compile(r'^0*\.0*(\d*)')
             m = re.search(p2, format_err.strip())
             good_digit = m.group(1)
 
@@ -141,13 +141,13 @@ import sys
 def magic(self, other, opr):
     if isinstance(other, Energie_part):
         l = ["{0} = self.{0}.{1}(other.{0})".format(i, opr)
-             for i in self.__dict__.keys()]
+             for i in list(self.__dict__.keys())]
         l_string = "a = Energie_part({0})".format(", ".join(l))
         exec (l_string)
         return a
     else:
         l = ["{0} = self.{0}.{1}(other)".format(i, opr)
-             for i in self.__dict__.keys()]
+             for i in list(self.__dict__.keys())]
         l_string = "a = Energie_part({0})".format(", ".join(l))
         exec (l_string)
         return a
@@ -210,43 +210,43 @@ class Energie_part(object):
 
 if __name__ == '__main__':
 
-    print "Operation"
-    print "========="
+    print("Operation")
+    print("=========")
     a = Energie(1.400, 0.6)
-    print "a =", a
-    print "a+a =", a + a
-    print "a-a =", a - a
-    print "a*2 =", a * 2
+    print("a =", a)
+    print("a+a =", a + a)
+    print("a-a =", a - a)
+    print("a*2 =", a * 2)
 
-    print ""
-    print "Display"
-    print "======="
+    print("")
+    print("Display")
+    print("=======")
 
     list_ = [Energie(1.5, 1.300), Energie(1, 10), Energie(3, 2),
              Energie(0.1, 0.1), Energie(0.1, 10), Energie(1, 0.00100),
-             Energie(8.8819036, 3.0581249), Energie(-100.42304, 00036)]
+             Energie(8.8819036, 3.0581249), Energie(-100.42304, 0o0036)]
 
-    print "Value", "err", "display"
+    print("Value", "err", "display")
     for i in list_:
-        print map("{:>9.4f}".format, [i.e, i.err, i])
+        print(list(map("{:>9.4f}".format, [i.e, i.err, i])))
 
-    print ""
-    print "Energie_part"
-    print "============"
+    print("")
+    print("Energie_part")
+    print("============")
 
     a = Energie_part(list_[0], list_[1], list_[2])
-    print "a =", a
-    print "a+a =", a + a
-    print "a-a =", a - a
-    print "a*2 =", a * 2
-    print "a/2 =", a / 2
+    print("a =", a)
+    print("a+a =", a + a)
+    print("a-a =", a - a)
+    print("a*2 =", a * 2)
+    print("a/2 =", a / 2)
     b = (a - 2 * a) / 2
-    print "(a-2*a)/2 =", b
-    print b.no_relativist_energie
-    print b.correted_energie
+    print("(a-2*a)/2 =", b)
+    print(b.no_relativist_energie)
+    print(b.correted_energie)
 
-    print "===="
+    print("====")
     a = Energie_part(spin_orbit=Energie(-6.3, 0.4))
 
     #    print a.no_relativist_energie
-    print a.correted_energie
+    print(a.correted_energie)

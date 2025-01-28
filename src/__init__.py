@@ -50,7 +50,7 @@ import os
 
 
 def overwrite():
-    r = raw_input(
+    r = input(
         "New default config file. If will overwrite youre. Continue? [Y/N]")
 
     if r.lower() == "y":
@@ -61,7 +61,7 @@ def overwrite():
         overwrite()
 
 
-import ConfigParser
+import configparser
 head = os.path.dirname(__file__)
 
 default_name = os.path.join(head, "..", "config", "config.cfg.default")
@@ -76,7 +76,7 @@ else:
     if default_time > usr_time:
         overwrite()
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(usr_name)
 
 def check_argument(d_arguments, str_):

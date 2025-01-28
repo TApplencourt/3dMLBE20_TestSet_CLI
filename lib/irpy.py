@@ -70,7 +70,7 @@ class lazy_property(object):
             except AttributeError:
                 pass
             else:
-                raise AttributeError, "Node is incoherent {0}".format(pri_node)
+                raise AttributeError("Node is incoherent {0}".format(pri_node))
 
             d_path[obj].append(pri_node)
 
@@ -91,7 +91,7 @@ class lazy_property(object):
             if self.leaf_node:
                 self.leaf_node = False
             else:
-                raise AttributeError, "Immutable Node {0}".format(self.pri_node)
+                raise AttributeError("Immutable Node {0}".format(self.pri_node))
 
         set_node_value(obj=obj, pri_node=self.pri_node, value=value)
 
